@@ -810,9 +810,10 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     const f = document.createElement('iframe');
     f.src = 'https://stock-report-card.streamlit.app/?embed=true'; f.title = 'Stock Report Card, live app'; f.loading = 'lazy';
     const sk = document.createElement('div'); sk.className = 'embed-skel'; sk.setAttribute('role', 'status');
-    sk.innerHTML = '<span></span><span></span><span></span><span></span><p>Waking up the app. This can take up to 30 seconds.</p>';
+    sk.innerHTML = '<span></span><span></span><span></span><span></span><p></p>';
+    requestAnimationFrame(() => { sk.querySelector('p').textContent = 'Waking up the app. This can take up to 30 seconds.'; }); // set after insert so screen readers announce it
     f.addEventListener('load', () => { f.classList.add('ready'); setTimeout(() => sk.remove(), 400); });
-    const box = document.getElementById('embed'); box.classList.add('live'); box.replaceChildren(sk, f); f.focus();
+    const box = document.getElementById('embed'); box.classList.add('live'); box.replaceChildren(sk, f); f.focus({ preventScroll: true }); box.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
   });
 
   /* ---------- math view toggle ---------- */
