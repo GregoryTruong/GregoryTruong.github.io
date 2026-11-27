@@ -24,6 +24,8 @@ html, body { margin: 0; } img { max-width: 100%; } [hidden] { display: none !imp
   --glass: rgba(14, 16, 19, 0.94);
   --line: rgba(232, 228, 220, 0.12);
   --sign: #123527;        /* highway sign green, signs only */
+  --cabin: #4a72ff;       /* cabin ambient light, visitor can change it */
+  --trim: #3a2013;        /* leather trim, visitor can change it */
   --f-display: "Michroma", "Eurostile", "Arial Black", sans-serif;
   --f-body: "Barlow", "Segoe UI", system-ui, sans-serif;
   --f-cond: "Barlow Condensed", "Arial Narrow", sans-serif;
@@ -47,7 +49,7 @@ a { color: var(--ambient); }
   padding-block: 14px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  pointer-events: none; background: #050607;
+  pointer-events: none; background: transparent;
 }
 .topbar > * { pointer-events: auto; }
 .mono-badge { font-family: var(--f-display); font-size: 13px; letter-spacing: .18em; color: var(--ink); text-decoration: none; }
@@ -72,6 +74,20 @@ a { color: var(--ambient); }
 .route a.on { color: var(--ambient); }
 .route a.on i { border-color: var(--ambient); background: var(--ambient); }
 
+/* ---------- cabin: starlight roof, A-pillars ---------- */
+.roof { position: fixed; top: 0; left: 0; right: 0; height: calc(64px + 4vh + env(safe-area-inset-top, 0px)); z-index: 4; pointer-events: none; }
+.roof svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.stars { position: absolute; inset: 0 0 30% 0; overflow: hidden; }
+.stars i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #f2efe6; }
+.stars i.c { background: var(--cabin); }
+.stars i.tw { animation: tw var(--d, 5s) ease-in-out infinite; animation-delay: var(--dl, 0s); }
+.stars .shoot { position: absolute; top: 18%; left: 0; width: 70px; height: 1px; background: #f2efe6; opacity: 0; animation: shoot 16s linear infinite 4s; }
+@keyframes tw { 50% { opacity: .12; } }
+@keyframes shoot { 0% { opacity: 0; transform: translate(10vw, 0) rotate(-8deg); } 1% { opacity: .7; } 4% { opacity: 0; transform: translate(34vw, 28px) rotate(-8deg); } 100% { opacity: 0; } }
+.pillar { position: fixed; top: 0; bottom: calc(clamp(150px, 25vh, 230px) - 40px); width: clamp(34px, 4.6vw, 72px); z-index: 4; pointer-events: none; background: #060708; }
+.pillar.l { left: 0; clip-path: polygon(0 0, 100% 0, 22% 100%, 0 100%); }
+.pillar.r { right: 0; clip-path: polygon(0 0, 100% 0, 100% 100%, 78% 100%); }
+
 /* ---------- cockpit: dash, yoke, cluster, centre screen ---------- */
 .cockpit {
   --ch: clamp(150px, 25vh, 230px);
@@ -80,7 +96,22 @@ a { color: var(--ambient); }
   z-index: 3; pointer-events: none; font-family: var(--f-mono);
 }
 .cockpit .dash { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.cockpit .amb { transition: stroke .4s; }
+.cockpit .leather { fill: var(--trim); transition: fill .4s; }
+.cockpit .amb { stroke: var(--cabin); transition: stroke .4s; }
+.cockpit .wash { stroke: var(--cabin); stroke-opacity: .14; transition: stroke .4s; }
+.vent { position: absolute; bottom: 50%; width: clamp(44px, 4.2vw, 62px); aspect-ratio: 1; z-index: 0; }
+.vent.l { left: 1.6%; } .vent.r { right: 1.6%; }
+.vent svg { width: 100%; height: 100%; display: block; }
+.vent .ring { fill: none; stroke: var(--cabin); stroke-width: 2.5; transition: stroke .4s; }
+.keys { position: absolute; right: 9%; bottom: 3%; width: clamp(320px, 33vw, 500px); height: 9%; min-height: 20px; pointer-events: auto;
+  display: flex; align-items: center; justify-content: flex-end; gap: 6px; font: 500 9px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--fog); }
+.keys span { margin-left: 10px; }
+.keys button { width: 22px; height: 100%; max-height: 18px; padding: 0; border: 1px solid rgba(232,228,220,.16); border-radius: 3px; background: #0d0f12; cursor: pointer; display: grid; place-items: center; }
+.keys button::after { content: ""; width: 10px; height: 3px; border-radius: 1px; background: var(--c); }
+.keys button[aria-pressed="true"] { border-color: var(--ink); }
+.yoke .lit { stroke: var(--cabin); transition: stroke .4s; }
+.yoke .grip { stroke: var(--trim); transition: stroke .4s; }
+.yoke .dotlit { fill: var(--cabin); transition: fill .4s; }
 .cluster {
   position: absolute; left: 13%; bottom: 24%; width: var(--cw); height: 56%;
   display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px;
@@ -93,16 +124,15 @@ a { color: var(--ambient); }
 .cluster .col b { display: block; font-size: 14px; color: var(--ink); letter-spacing: .02em; text-transform: none; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
 .cluster .col.r { text-align: right; }
 .gears { display: flex; gap: 6px; font-size: 12px; letter-spacing: 0; }
-.gears span.on { color: var(--ambient); font-weight: 600; }
+.gears span.on { color: var(--cabin); font-weight: 600; }
 .dial { position: relative; width: min(clamp(110px, 10vw, 150px), calc(var(--ch) * .5)); aspect-ratio: 1; max-width: 100%; }
 .dial svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .dial .track { fill: none; stroke: rgba(232,228,220,.12); stroke-width: 6; stroke-linecap: round; }
-.dial .fill { fill: none; stroke: var(--ambient); stroke-width: 6; stroke-linecap: round; transition: stroke .3s; }
+.dial .fill { fill: none; stroke: var(--cabin); stroke-width: 6; stroke-linecap: round; transition: stroke .3s; }
 .dial .num { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
 .dial .num b { font-size: clamp(26px, 2.6vw, 38px); line-height: 1; font-weight: 600; color: var(--ink); }
 .dial .num small { font-size: 9px; letter-spacing: .18em; color: var(--fog); margin-top: 4px; }
-.cockpit.boost .dial .fill { stroke: var(--neon); }
-.cockpit.boost .dial .num b { color: var(--neon); }
+.cockpit.boost .dial .fill { stroke: #f2efe6; }
 .yoke {
   position: absolute; left: calc(13% + var(--cw) / 2); bottom: -40%;
   width: calc(var(--cw) * 1.62); transform: translateX(-50%); transform-origin: 50% 70%; z-index: 1;
@@ -119,7 +149,7 @@ a { color: var(--ambient); }
   flex: 1 1 0; min-width: 0; padding: 8px 4px 7px; border: 0; border-bottom: 2px solid transparent; cursor: pointer;
   background: transparent; color: var(--fog); font: 600 12px/1 var(--f-cond); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
 }
-.apps button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--ambient); }
+.apps button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--cabin); }
 .apps button:hover { color: var(--ink); }
 .apps button.live { color: var(--ambient); }
 .view { padding: 10px 14px 12px; overflow: auto; min-width: 0; display: grid; align-content: start; gap: 8px; font-size: 12px; color: var(--ink); scrollbar-width: thin; }
@@ -248,6 +278,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 
 @media (max-height: 880px) and (min-width: 801px) {
   .yoke { bottom: -60%; }
+  .roof { height: calc(60px + 3vh); }
   .cluster { padding: 8px 12px; }
   .cluster .col { gap: 4px; font-size: 9px; }
   .cluster .col b { font-size: 12px; }
@@ -255,7 +286,8 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 }
 @media (max-width: 800px) {
   .cockpit { --ch: 132px; }
-  .yoke, .cluster .col, .view { display: none; }
+  .yoke, .cluster .col, .view, .vent, .keys, .pillar { display: none; }
+  .roof { height: calc(58px + 2vh + env(safe-area-inset-top, 0px)); }
   .cluster { left: 50%; transform: translateX(-50%); width: auto; bottom: 62px; height: 66px; padding: 4px 14px; grid-template-columns: auto; border-radius: 4px; }
   .dial { width: 58px; }
   .dial .num b { font-size: 17px; }
@@ -272,11 +304,22 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 @media (prefers-reduced-motion: reduce) {
   .js .reveal { opacity: 1; transform: none; transition: none; }
   .eq.on span { animation: none; height: 60%; }
+  .stars i.tw, .stars .shoot { animation: none; }
+  .stars .shoot { display: none; }
 }
 </style>
 </head>
 <body>
 <canvas id="scene" aria-hidden="true"></canvas>
+
+<div class="roof" aria-hidden="true">
+  <svg viewBox="0 0 1000 100" preserveAspectRatio="none">
+    <path d="M0 0 H1000 V96 C 800 66, 200 66, 0 96 Z" fill="#050607"/>
+    <path d="M0 96 C 200 66, 800 66, 1000 96" fill="none" stroke="rgba(232,228,220,.10)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+  </svg>
+  <div class="stars" id="stars"><span class="shoot"></span></div>
+</div>
+<div class="pillar l" aria-hidden="true"></div><div class="pillar r" aria-hidden="true"></div>
 
 <header class="topbar">
   <a class="mono-badge" href="#start">G · TRUONG<span>极速</span></a>
@@ -301,9 +344,18 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
           </defs>
     <path d="M0 34 C 220 2, 780 2, 1000 34 L1000 200 L0 200 Z" fill="url(#dashFill)"/>
     <path d="M0 34 C 220 2, 780 2, 1000 34" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
-    <path class="amb" d="M30 46 C 250 18, 750 18, 970 46" fill="none" stroke="#d6a15c" stroke-opacity=".7" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
-    <path d="M0 150 C 300 132, 700 132, 1000 150" fill="none" stroke="rgba(232,228,220,.06)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+    <linearGradient id="leatherShade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".15"/><stop offset="1" stop-color="#000" stop-opacity=".75"/></linearGradient>
+    <path class="leather" d="M0 92 C 300 70, 700 70, 1000 92 L1000 200 L0 200 Z"/>
+    <path d="M0 92 C 300 70, 700 70, 1000 92 L1000 200 L0 200 Z" fill="url(#leatherShade)"/>
+    <path d="M0 101 C 300 79, 700 79, 1000 101" fill="none" stroke="rgba(236,214,186,.30)" stroke-width="1" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/>
+    <path d="M0 146 C 300 126, 700 126, 1000 146" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+    <path d="M0 150 C 300 130, 700 130, 1000 150" fill="none" stroke="rgba(236,214,186,.18)" stroke-width="1" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/>
+    <path class="wash" d="M0 95 C 300 73, 700 73, 1000 95" fill="none" stroke-width="10" vector-effect="non-scaling-stroke"/>
+    <path class="amb" d="M0 92 C 300 70, 700 70, 1000 92" fill="none" stroke-width="2" vector-effect="non-scaling-stroke"/>
   </svg>
+
+  <div class="vent l" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#08090b" stroke="#24262a" stroke-width="3"/><circle class="ring" cx="50" cy="50" r="40"/><g stroke="#2c2e33" stroke-width="3" stroke-linecap="round"><path d="M50 50 L50 14" transform="rotate(0 50 50)"/><path d="M50 50 L50 14" transform="rotate(30 50 50)"/><path d="M50 50 L50 14" transform="rotate(60 50 50)"/><path d="M50 50 L50 14" transform="rotate(90 50 50)"/><path d="M50 50 L50 14" transform="rotate(120 50 50)"/><path d="M50 50 L50 14" transform="rotate(150 50 50)"/><path d="M50 50 L50 14" transform="rotate(180 50 50)"/><path d="M50 50 L50 14" transform="rotate(210 50 50)"/><path d="M50 50 L50 14" transform="rotate(240 50 50)"/><path d="M50 50 L50 14" transform="rotate(270 50 50)"/><path d="M50 50 L50 14" transform="rotate(300 50 50)"/><path d="M50 50 L50 14" transform="rotate(330 50 50)"/></g><circle cx="50" cy="50" r="11" fill="#141518" stroke="#2c2e33" stroke-width="2"/></svg></div>
+  <div class="vent r" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#08090b" stroke="#24262a" stroke-width="3"/><circle class="ring" cx="50" cy="50" r="40"/><g stroke="#2c2e33" stroke-width="3" stroke-linecap="round"><path d="M50 50 L50 14" transform="rotate(0 50 50)"/><path d="M50 50 L50 14" transform="rotate(30 50 50)"/><path d="M50 50 L50 14" transform="rotate(60 50 50)"/><path d="M50 50 L50 14" transform="rotate(90 50 50)"/><path d="M50 50 L50 14" transform="rotate(120 50 50)"/><path d="M50 50 L50 14" transform="rotate(150 50 50)"/><path d="M50 50 L50 14" transform="rotate(180 50 50)"/><path d="M50 50 L50 14" transform="rotate(210 50 50)"/><path d="M50 50 L50 14" transform="rotate(240 50 50)"/><path d="M50 50 L50 14" transform="rotate(270 50 50)"/><path d="M50 50 L50 14" transform="rotate(300 50 50)"/><path d="M50 50 L50 14" transform="rotate(330 50 50)"/></g><circle cx="50" cy="50" r="11" fill="#141518" stroke="#2c2e33" stroke-width="2"/></svg></div>
 
   <div class="cluster" aria-hidden="true">
     <div class="col">
@@ -324,16 +376,33 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 
   <div class="yoke" id="yoke" aria-hidden="true">
     <svg viewBox="0 0 400 210">
-      <defs><linearGradient id="yokeG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c1e22"/><stop offset="1" stop-color="#0b0c0e"/></linearGradient></defs>
-      <path d="M70 40 Q38 40 38 78 L38 150 Q38 192 84 192 L316 192 Q362 192 362 150 L362 78 Q362 40 330 40" fill="none" stroke="url(#yokeG)" stroke-width="30" stroke-linecap="round"/>
-      <path d="M58 36 Q28 40 26 78 L26 150" fill="none" stroke="rgba(232,228,220,.18)" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M342 36 Q372 40 374 78 L374 150" fill="none" stroke="rgba(232,228,220,.18)" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M52 150 L150 150 M250 150 L348 150" stroke="#111215" stroke-width="16" stroke-linecap="round"/>
-      <rect x="140" y="118" width="120" height="66" rx="22" fill="#111215" stroke="rgba(232,228,220,.14)"/>
-      <text x="200" y="158" text-anchor="middle" font-family="Michroma, sans-serif" font-size="20" fill="#d6a15c">GT</text>
-      <circle cx="38" cy="96" r="5" fill="#2a2c31"/><circle cx="38" cy="116" r="4" fill="#3a3c40"/>
-      <circle cx="362" cy="96" r="5" fill="#2a2c31"/><circle cx="362" cy="116" r="4" fill="#3a3c40"/>
+      <path d="M70 40 Q38 40 38 78 L38 150 Q38 192 84 192 L316 192 Q362 192 362 150 L362 78 Q362 40 330 40" fill="none" stroke="#121316" stroke-width="30" stroke-linecap="round"/>
+      <path class="grip" d="M38 74 L38 152" fill="none" stroke-width="24" stroke-linecap="round" stroke-opacity=".9"/>
+      <path class="grip" d="M362 74 L362 152" fill="none" stroke-width="24" stroke-linecap="round" stroke-opacity=".9"/>
+      <path d="M38 76 L38 150 M362 76 L362 150" stroke="rgba(236,214,186,.35)" stroke-width="1" stroke-dasharray="3 4"/>
+      <path d="M58 36 Q28 40 26 78 L26 150" fill="none" stroke="rgba(232,228,220,.14)" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M342 36 Q372 40 374 78 L374 150" fill="none" stroke="rgba(232,228,220,.14)" stroke-width="1.5" stroke-linecap="round"/>
+      <path class="lit" d="M62 34 L78 34" stroke-width="3" stroke-linecap="round"/>
+      <path class="lit" d="M322 34 L338 34" stroke-width="3" stroke-linecap="round"/>
+      <path d="M52 150 L150 150 M250 150 L348 150" stroke="#0d0e10" stroke-width="16" stroke-linecap="round"/>
+      <rect x="84" y="143" width="22" height="14" rx="3" fill="#1a1b1f"/><rect x="112" y="143" width="22" height="14" rx="3" fill="#1a1b1f"/>
+      <rect x="266" y="143" width="22" height="14" rx="3" fill="#1a1b1f"/><rect x="294" y="143" width="22" height="14" rx="3" fill="#1a1b1f"/>
+      <circle class="dotlit" cx="95" cy="150" r="1.8"/><circle class="dotlit" cx="305" cy="150" r="1.8"/>
+      <rect x="140" y="118" width="120" height="66" rx="20" fill="#0f1013" stroke="rgba(232,228,220,.14)"/>
+      <text x="200" y="158" text-anchor="middle" font-family="Michroma, sans-serif" font-size="19" letter-spacing="2" fill="#e8e4dc">G2</text>
+      <path class="lit" d="M184 168 L216 168" stroke-width="2" stroke-linecap="round"/>
     </svg>
+  </div>
+
+  <div class="keys" role="group" aria-label="Cabin settings">
+    <span>Ambient</span>
+    <button type="button" data-cabin="ocean" style="--c:#4a72ff" aria-label="Ocean blue ambient light"></button>
+    <button type="button" data-cabin="amber" style="--c:#d6a15c" aria-label="Amber ambient light"></button>
+    <button type="button" data-cabin="crimson" style="--c:#e0453c" aria-label="Crimson ambient light"></button>
+    <span>Trim</span>
+    <button type="button" data-trim="cognac" style="--c:#8a5532" aria-label="Cognac leather"></button>
+    <button type="button" data-trim="onyx" style="--c:#2a2b2f" aria-label="Onyx leather"></button>
+    <button type="button" data-trim="ivory" style="--c:#cfc6b6" aria-label="Ivory leather"></button>
   </div>
 
   <div class="screen" id="screen">
@@ -530,6 +599,28 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     const nx = chapters[idx + 1] ? chapters[idx + 1].dataset.name : 'Arrived';
     if (nextEl.textContent !== nx) { nextEl.textContent = nx; nextScreen.textContent = nx; }
   }
+
+  /* ---------- cabin: starlight roof + ambient and trim keys ---------- */
+  const starsEl = document.getElementById('stars');
+  for (let i = 0, n = innerWidth < 800 ? 40 : 110; i < n; i++) {
+    const st = document.createElement('i'), r = Math.random();
+    st.style.cssText = `left:${(Math.random() * 100).toFixed(2)}%;top:${(Math.pow(Math.random(), 1.3) * 100).toFixed(1)}%;opacity:${(.25 + Math.random() * .65).toFixed(2)}`;
+    if (r < .18) st.className = 'c';
+    if (Math.random() < .2) { st.classList.add('tw'); st.style.setProperty('--d', (3 + Math.random() * 5).toFixed(1) + 's'); st.style.setProperty('--dl', (-Math.random() * 6).toFixed(1) + 's'); }
+    if (Math.random() < .12) { st.style.width = st.style.height = '3px'; }
+    starsEl.append(st);
+  }
+  const CABIN = { ocean: '#4a72ff', amber: '#d6a15c', crimson: '#e0453c' }, TRIM = { cognac: '#3a2013', onyx: '#141518', ivory: '#5d584f' };
+  const store = (k, v) => { try { v === undefined ? (v = localStorage.getItem(k)) : localStorage.setItem(k, v); } catch (e) { v = null; } return v; };
+  function setCabin(kind, key) {
+    const table = kind === 'cabin' ? CABIN : TRIM;
+    if (!table[key]) return;
+    document.documentElement.style.setProperty('--' + kind, table[key]);
+    document.querySelectorAll(`[data-${kind}]`).forEach(b => b.setAttribute('aria-pressed', b.dataset[kind] === key));
+    store('g2-' + kind, key);
+  }
+  setCabin('cabin', store('g2-cabin') || 'ocean'); setCabin('trim', store('g2-trim') || 'cognac');
+  document.querySelectorAll('[data-cabin],[data-trim]').forEach(b => b.addEventListener('click', () => b.dataset.cabin ? setCabin('cabin', b.dataset.cabin) : setCabin('trim', b.dataset.trim)));
 
   /* ---------- centre screen ---------- */
   const jump = id => document.getElementById(id).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
