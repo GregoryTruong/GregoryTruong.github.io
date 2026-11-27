@@ -202,8 +202,15 @@ a { color: var(--ambient); }
 .art::after { content: "GT"; position: absolute; inset: 0; display: grid; place-items: center; font: 400 13px/1 var(--f-display); color: var(--ambient); }
 .np small { display: block; color: var(--fog); font-size: 11px; }
 .play { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--ambient); background: rgba(232,228,220,0.060); color: var(--ambient); cursor: pointer; display: grid; place-items: center; }
-.eq { display: flex; gap: 3px; align-items: flex-end; height: 22px; }
-.eq span { width: 4px; height: 20%; background: var(--ambient); border-radius: 2px; opacity: .5; }
+.eq { position: absolute; inset: 12px 10px; display: flex; gap: 3px; align-items: flex-end; justify-content: center; visibility: hidden; }
+.art:has(.eq.on)::after { content: none; }
+.eq.on { visibility: visible; }
+.stations { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 6px; }
+.stations button { font: 500 11px/1 var(--f-mono); color: var(--fog); background: #0d0f12; border: 1px solid var(--line); border-radius: 3px; padding: 8px 6px; cursor: pointer; white-space: nowrap; }
+.stations button[aria-pressed="true"] { color: var(--ambient); border-color: var(--ambient); }
+.radio-toast { position: fixed; left: 50%; bottom: calc(var(--ch) + 10px); transform: translateX(-50%); z-index: 6; font: 500 12px/1 var(--f-mono); letter-spacing: .06em; color: var(--ink); background: #0c0e11; border: 1px solid var(--line); border-radius: 3px; padding: 8px 12px; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; }
+.radio-toast.show { opacity: 1; }
+.eq span { width: 4px; height: 20%; max-height: 100%; background: var(--ambient); border-radius: 2px; opacity: .5; }
 .eq.on span { animation: eq .9s ease-in-out infinite alternate; opacity: 1; }
 .eq.on span:nth-child(2n) { animation-duration: .6s; }
 .eq.on span:nth-child(3n) { animation-duration: 1.2s; }
@@ -671,6 +678,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   <li><a href="#contact"><span>Destination</span><i></i></a></li>
 </ol>
 
+<p class="radio-toast" id="radioToast" role="status"></p>
 <div class="cockpit" id="cockpit">
   <svg class="dash" viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true">
     <g class="wipers">
@@ -794,12 +802,17 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     <div class="view" data-view="music" hidden>
       <div class="vhead"><span>Now playing</span><span id="musicState">Paused</span></div>
       <div class="np">
-        <div class="art"></div>
-        <div><h4>Neon Exit</h4><small>GT synth engine · live</small></div>
+        <div class="art"><div class="eq" id="eq"><span></span><span></span><span></span><span></span><span></span></div></div>
+        <div><h4 id="stName">Neon Exit</h4><small id="stSub">Slow synth pads, 80 bpm</small></div>
         <button class="play" id="playBtn" type="button" aria-label="Play music"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path id="playIcon" d="M8 5v14l11-7z"/></svg></button>
       </div>
-      <div class="eq" id="eq"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-      <p class="fine">Generated live in your browser with the Web Audio API. No audio files.</p>
+      <div class="stations" role="group" aria-label="Pick a station">
+        <button type="button" data-station="neon" aria-pressed="true">Neon Exit</button>
+        <button type="button" data-station="rain" aria-pressed="false">Rain Radio</button>
+        <button type="button" data-station="pulse" aria-pressed="false">Highway Pulse</button>
+        <button type="button" data-station="engine" aria-pressed="false">Engine only</button>
+      </div>
+      <p class="fine">All four are generated live in your browser with the Web Audio API. No audio files.</p>
     </div>
     <div class="view" data-view="projects" hidden>
       <div class="vhead"><span>Projects</span><span>Live demo included</span></div>
@@ -885,7 +898,6 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     starsEl.append(st);
   }
   const CABIN = { ocean: '#4a72ff', amber: '#d6a15c', crimson: '#e0453c' }, TRIM = { cognac: '#3a2013', onyx: '#141518', ivory: '#5d584f' };
-  const store = (k, v) => { try { v === undefined ? (v = localStorage.getItem(k)) : localStorage.setItem(k, v); } catch (e) { v = null; } return v; };
   function setCabin(kind, key) {
     const table = kind === 'cabin' ? CABIN : TRIM;
     if (!table[key]) return;
@@ -933,7 +945,12 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   appBtns.forEach(b => b.addEventListener('click', () => {
     const app = b.dataset.app;
     if (compact.matches) { // phone: the dock does quick actions
-      if (app === 'music') setSound(!soundOn);
+      if (app === 'music') { // like a radio button: each tap is the next station, then off
+        const ids = Object.keys(STATIONS), i = ids.indexOf(station);
+        if (!soundOn) { setSound(true); setStation(station, true); }
+        else if (i === ids.length - 1) { setSound(false); toast.textContent = 'Sound off'; toast.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => toast.classList.remove('show'), 1600); setStation(ids[0]); }
+        else setStation(ids[i + 1], true);
+      }
       else if (app === 'resume') { const a = document.createElement('a'); a.href = 'resume.pdf'; a.target = '_blank'; a.rel = 'noopener'; a.click(); }
       else if (app === 'map') jump((chapters[curIdx + 1] || chapters[0]).id); // next stop on the route
       else jump({ projects: 'cars', contact: 'contact' }[app]);
@@ -967,49 +984,116 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   });
 
   /* ---------- audio: engine hum + synthwave pad + pulsing bass ---------- */
-  let ac = null, master, engA, engB, padOscs = [], soundOn = false, chordIdx = 0, nextNote = 0, step = 0, noiseBuf;
+  function store(k, v) { try { v === undefined ? (v = localStorage.getItem(k)) : localStorage.setItem(k, v); } catch (e) { v = null; } return v; }
+  let ac = null, master, music, engA, engB, padOscs = [], padGain, padFilter, keysBus, rainBed, soundOn = false, chordIdx = 0, nextNote = 0, step = 0, noiseBuf;
   const soundBtn = document.getElementById('soundBtn');
   const midi = n => 440 * Math.pow(2, (n - 69) / 12);
-  const chords = [[45,52,57,60,64],[41,48,53,57,60],[43,50,55,59,62],[40,47,52,55,59]]; // Am  F  G  Em
+  // stations: each is a tempo, a chord loop and which parts play. Everything is synthesized, no audio files
+  const STATIONS = {
+    neon: { name: 'Neon Exit', sub: 'Slow synth pads, 80 bpm', bpm: 80, bar: 32, pad: .028,
+      chords: [[45,52,57,60,64],[41,48,53,57,60],[43,50,55,59,62],[40,47,52,55,59]], // Am F G Em
+      bass: [0, 12, 0, 7, 0, 12, 10, 7], bassVol: .11 },
+    rain: { name: 'Rain Radio', sub: 'Lo-fi keys and soft drums, 72 bpm', bpm: 72, bar: 16, pad: .008, keys: true, drums: 'soft', rain: .05,
+      chords: [[50,57,60,64,65],[43,50,53,57,59],[48,55,59,62,64],[45,52,55,59,60]], // Dm9 G7 Cmaj9 Am7
+      bass: [0, null, null, null, null, null, 7, null, 0, null, null, null, null, null, null, null], bassVol: .09 },
+    pulse: { name: 'Highway Pulse', sub: 'Synthwave, 112 bpm', bpm: 112, bar: 16, pad: .014, arp: true, drums: 'four',
+      chords: [[40,47,52,55,59],[36,43,48,52,55],[43,50,55,59,62],[38,45,50,54,57]], // Em C G D
+      bass: [0, null, 0, 12, 0, null, 0, 12], bassVol: .1 },
+    engine: { name: 'Engine only', sub: 'No music, just the car and the rain', music: false }
+  };
+  let station = STATIONS[store('g2-station')] ? store('g2-station') : 'neon';
   function buildAudio() {
     ac = new (window.AudioContext || window.webkitAudioContext)();
     master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
+    music = ac.createGain(); music.gain.value = STATIONS[station].music === false ? 0 : 1; music.connect(master);
     const len = ac.sampleRate * 3, imp = ac.createBuffer(2, len, ac.sampleRate);
     for (let ch = 0; ch < 2; ch++) { const d = imp.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5); }
     const verb = ac.createConvolver(); verb.buffer = imp;
-    const wet = ac.createGain(); wet.gain.value = .5; verb.connect(wet); wet.connect(master);
+    const wet = ac.createGain(); wet.gain.value = .5; verb.connect(wet); wet.connect(music);
     noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate); const nd = noiseBuf.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
-    // engine
+    // engine (stays on for every station)
     const engFilter = ac.createBiquadFilter(); engFilter.type = 'lowpass'; engFilter.frequency.value = 150;
     const engGain = ac.createGain(); engGain.gain.value = .07;
     engA = ac.createOscillator(); engA.type = 'sawtooth'; engA.frequency.value = 40;
     engB = ac.createOscillator(); engB.type = 'sawtooth'; engB.frequency.value = 40.6;
     engA.connect(engFilter); engB.connect(engFilter); engFilter.connect(engGain); engGain.connect(master);
     engA.start(); engB.start();
+    // rain on the roof: filtered noise, loudest on Rain Radio and Engine only
+    const rs = ac.createBufferSource(); rs.buffer = noiseBuf; rs.loop = true;
+    const rf = ac.createBiquadFilter(); rf.type = 'bandpass'; rf.frequency.value = 2400; rf.Q.value = .5;
+    rainBed = ac.createGain(); rainBed.gain.value = 0; rs.connect(rf); rf.connect(rainBed); rainBed.connect(master); rs.start();
     // pad
-    const padFilter = ac.createBiquadFilter(); padFilter.type = 'lowpass'; padFilter.frequency.value = 1100; padFilter.Q.value = 3;
+    padFilter = ac.createBiquadFilter(); padFilter.type = 'lowpass'; padFilter.frequency.value = 1100; padFilter.Q.value = 3;
     const lfo = ac.createOscillator(); lfo.frequency.value = .08; const lfoG = ac.createGain(); lfoG.gain.value = 600;
     lfo.connect(lfoG); lfoG.connect(padFilter.frequency); lfo.start();
-    const padGain = ac.createGain(); padGain.gain.value = .028;
-    padFilter.connect(padGain); padGain.connect(master); padGain.connect(verb);
-    chords[0].forEach((n, i) => {
+    padGain = ac.createGain(); padGain.gain.value = 0;
+    padFilter.connect(padGain); padGain.connect(music); padGain.connect(verb);
+    STATIONS[station === 'engine' ? 'neon' : station].chords[0].forEach((n, i) => {
       for (const det of [-7, 7]) { const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = midi(n + 12); o.detune.value = det; o.connect(padFilter); o.start(); padOscs.push([o, i]); }
     });
-    // bass sequencer
-    const bassF = ac.createBiquadFilter(); bassF.type = 'lowpass'; bassF.frequency.value = 520; bassF.Q.value = 6; bassF.connect(master); bassF.connect(verb);
+    keysBus = ac.createBiquadFilter(); keysBus.type = 'lowpass'; keysBus.frequency.value = 1800; keysBus.connect(music); keysBus.connect(verb);
+    // bass, keys, arp and drums share one 16th-note clock
+    const bassF = ac.createBiquadFilter(); bassF.type = 'lowpass'; bassF.frequency.value = 520; bassF.Q.value = 6; bassF.connect(music); bassF.connect(verb);
+    const note = (type, f, t, vol, dur, dest, attack = .01) => {
+      const o = ac.createOscillator(), e = ac.createGain();
+      o.type = type; o.frequency.value = f;
+      e.gain.setValueAtTime(0, t); e.gain.linearRampToValueAtTime(vol, t + attack); e.gain.exponentialRampToValueAtTime(.001, t + dur);
+      o.connect(e); e.connect(dest); o.start(t); o.stop(t + dur + .05);
+    };
+    const hit = (t, kind, vol) => { // drums: a pitched sine for the kick, filtered noise for snare and hat
+      if (kind === 'kick') {
+        const o = ac.createOscillator(), e = ac.createGain();
+        o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(42, t + .12);
+        e.gain.setValueAtTime(vol, t); e.gain.exponentialRampToValueAtTime(.001, t + .3);
+        o.connect(e); e.connect(music); o.start(t); o.stop(t + .32); return;
+      }
+      const n = ac.createBufferSource(), f = ac.createBiquadFilter(), e = ac.createGain(), d = kind === 'hat' ? .04 : .16;
+      n.buffer = noiseBuf; f.type = kind === 'hat' ? 'highpass' : 'bandpass'; f.frequency.value = kind === 'hat' ? 7000 : 1700;
+      e.gain.setValueAtTime(vol, t); e.gain.exponentialRampToValueAtTime(.001, t + d);
+      n.connect(f); f.connect(e); e.connect(music); n.start(t, Math.random() * .5); n.stop(t + d + .02);
+    };
+    applyStation(true);
     nextNote = ac.currentTime + .1;
     setInterval(() => {
-      if (!soundOn || ac.state !== 'running') { nextNote = ac.currentTime + .1; return; } // paused: don't queue notes
+      const st = STATIONS[station];
+      if (!soundOn || ac.state !== 'running' || st.music === false) { nextNote = ac.currentTime + .1; return; } // paused: don't queue notes
+      const sixteenth = 15 / st.bpm;
       while (nextNote < ac.currentTime + .25) {
-        const root = chords[chordIdx][0] - 12, pat = [0, 12, 0, 7, 0, 12, 10, 7];
-        const o = ac.createOscillator(), e = ac.createGain();
-        o.type = 'sawtooth'; o.frequency.value = midi(root + pat[step % 8]);
-        e.gain.setValueAtTime(0, nextNote); e.gain.linearRampToValueAtTime(.11, nextNote + .01); e.gain.exponentialRampToValueAtTime(.001, nextNote + .17);
-        o.connect(e); e.connect(bassF); o.start(nextNote); o.stop(nextNote + .2);
-        step++; nextNote += .1875; // 16ths at 80 bpm
-        if (step % 32 === 0) { chordIdx = (chordIdx + 1) % chords.length; padOscs.forEach(([o, i]) => o.frequency.setTargetAtTime(midi(chords[chordIdx][i] + 12), nextNote, .4)); }
+        const ch = st.chords[chordIdx % st.chords.length], root = ch[0] - 12, b = st.bass[step % st.bass.length], s16 = step % 16;
+        if (b !== null) note('sawtooth', midi(root + b), nextNote, st.bassVol, .17, bassF);
+        if (st.keys && (s16 === 0 || s16 === 10)) ch.slice(1).forEach((n, i) => note('triangle', midi(n + 12), nextNote + i * .012, s16 ? .018 : .03, 2.4, keysBus, .02));
+        if (st.arp) note('square', midi(ch[[1, 2, 3, 4, 3, 2][step % 6]] + 24), nextNote, .016, .12, keysBus);
+        if (st.drums === 'four') { if (s16 % 4 === 0) hit(nextNote, 'kick', .5); if (s16 === 4 || s16 === 12) hit(nextNote, 'snare', .14); if (s16 % 4 === 2) hit(nextNote, 'hat', .05); }
+        if (st.drums === 'soft') { if (s16 === 0 || s16 === 10) hit(nextNote, 'kick', .32); if (s16 === 4 || s16 === 12) hit(nextNote, 'snare', .06); if (s16 % 2 === 0) hit(nextNote, 'hat', .025); }
+        step++; nextNote += sixteenth;
+        if (step % st.bar === 0) { chordIdx = (chordIdx + 1) % st.chords.length; glidePad(nextNote); }
       }
     }, 60);
+  }
+  function glidePad(t) {
+    const st = STATIONS[station]; if (!st.chords) return;
+    padOscs.forEach(([o, i]) => o.frequency.setTargetAtTime(midi(st.chords[chordIdx % st.chords.length][i] + 12), t, .4));
+  }
+  function applyStation(instant) { // fade the music bus out, swap parts, fade back in
+    const st = STATIONS[station], t = ac.currentTime, on = st.music !== false;
+    if (instant) { music.gain.value = on ? 1 : 0; padGain.gain.value = st.pad || 0; }
+    else {
+      music.gain.setTargetAtTime(0, t, .08);
+      if (on) music.gain.setTargetAtTime(1, t + .35, .15);
+      padGain.gain.setTargetAtTime(st.pad || 0, t + .3, .3);
+    }
+    rainBed.gain.setTargetAtTime(st.rain || (on ? 0 : .04), t, .4);
+    step = 0; chordIdx = 0; nextNote = t + (instant ? .1 : .4); glidePad(t + .3);
+  }
+  const toast = document.getElementById('radioToast'); let toastT;
+  function setStation(id, announce) {
+    if (!STATIONS[id]) return;
+    station = id; store('g2-station', id);
+    const st = STATIONS[id];
+    document.getElementById('stName').textContent = st.name; document.getElementById('stSub').textContent = st.sub;
+    document.querySelectorAll('[data-station]').forEach(b => b.setAttribute('aria-pressed', b.dataset.station === id));
+    if (ac) applyStation(false);
+    if (announce) { toast.textContent = st.name + (compact.matches ? ' · tap Music for next' : ''); toast.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => toast.classList.remove('show'), 1600); }
   }
   function chime(level) { // short two-note ding, a step higher for each combo level
     if (!ac || !soundOn) return;
@@ -1042,6 +1126,8 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     const mb = document.querySelector('[data-app="music"]'); mb.classList.toggle('live', on); mb.textContent = on ? 'Music on' : 'Music';
   }
   document.getElementById('playBtn').addEventListener('click', () => setSound(!soundOn));
+  setStation(station);
+  document.querySelectorAll('[data-station]').forEach(b => b.addEventListener('click', () => { setStation(b.dataset.station); if (!soundOn) setSound(true); }));
   soundBtn.addEventListener('click', () => setSound(!soundOn));
   /* ---------- intro: parked in the plaza until you start the engine ---------- */
   let intro = scrollY < innerHeight * .5 && !location.hash;
