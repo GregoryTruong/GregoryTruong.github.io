@@ -241,6 +241,10 @@ p { margin: 0; max-width: 62ch; color: #c9c5bd; }
 .quick { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 22px; margin-top: 4px; }
 .quick a { color: var(--ink); font-weight: 600; text-decoration: underline; text-decoration-color: var(--ambient); text-underline-offset: 4px; }
 .hero .status { font-size: 14px; color: var(--fog); }
+html.intro { overflow: hidden; }
+.scroll-hint .on-intro { display: none; }
+.intro .scroll-hint .on-intro { display: inline; }
+.intro .scroll-hint .off-intro { display: none; }
 .scroll-hint { font: 500 11px/1 var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--fog); margin-top: 18px; }
 
 /* gauges (what drives me) */
@@ -518,7 +522,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
       </div>
       <p class="quick"><a href="resume.pdf" target="_blank" rel="noopener">Resume (PDF)</a><a href="#cars">Projects</a><a href="https://stock-report-card.streamlit.app" target="_blank" rel="noopener">Live demo</a><a href="#contact">Contact</a></p>
       <p class="status">Incoming QA Analyst co-op at the Ontario Public Service, January to August 2027</p>
-      <div class="scroll-hint">Or scroll to drive</div>
+      <div class="scroll-hint"><span class="on-intro">Parked in a Saigon plaza. Start the engine to drive.</span><span class="off-intro">Or scroll to drive</span></div>
     </div>
   </section>
 
@@ -862,9 +866,20 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   }
   document.getElementById('playBtn').addEventListener('click', () => setSound(!soundOn));
   soundBtn.addEventListener('click', () => setSound(!soundOn));
-  const go = () => document.getElementById('about').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+  /* ---------- intro: parked in the plaza until you start the engine ---------- */
+  let intro = scrollY < innerHeight * .5 && !location.hash;
+  document.documentElement.classList.toggle('intro', intro);
+  function endIntro() { if (!intro) return; intro = false; document.documentElement.classList.remove('intro'); }
+  const go = () => { endIntro(); requestAnimationFrame(() => document.getElementById('about').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' })); };
   document.getElementById('startSound').addEventListener('click', () => { setSound(true); go(); });
   document.getElementById('startQuiet').addEventListener('click', () => { setSound(false); go(); });
+  // any jump (quick links, route, car screen) or a scroll attempt also starts the drive, so nothing is ever locked
+  document.addEventListener('click', e => { if (intro && e.target.closest('a[href^="#"]:not([href="#start"]), [data-jump], .stops button, .apps button')) endIntro(); }, true);
+  addEventListener('wheel', e => { if (intro && e.deltaY > 4) go(); }, { passive: true });
+  let touchY0 = null;
+  addEventListener('touchstart', e => { touchY0 = e.touches[0].clientY; }, { passive: true });
+  addEventListener('touchmove', e => { if (intro && touchY0 !== null && touchY0 - e.touches[0].clientY > 30) { touchY0 = null; go(); } }, { passive: true });
+  addEventListener('keydown', e => { if (intro && ['ArrowDown', 'PageDown', 'Space', 'End'].includes(e.code) && !e.target.closest('button, a, input')) { e.preventDefault(); go(); } });
 
   /* ---------- scene ---------- */
   const cv = document.getElementById('scene'), g = cv.getContext('2d');
@@ -936,7 +951,14 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     if (Math.random() < .45) b.board = { text: pick(EN), color: pick(NEONS), y0: rnd(h * .35, h * .75) };
     return b;
   }
-  for (const side of [-1, 1]) { let z = 4; while (z < FAR) { const b = makeBld(side, z); blds.push(b); z += b.depth + rnd(1.5, 7); } }
+  // the plaza you start parked in: open square, shop facades, string lights, parked motorbikes, food carts
+  const plaza = { end: intro ? 58 : -999 };
+  const rng = (() => { let t = 7; return () => (t = (t * 16807) % 2147483647) / 2147483647; })(); // seeded, same plaza every visit
+  const bikes = []; for (let i = 0; i < 26; i++) { const side = rng() < .5 ? -1 : 1; bikes.push({ x: side * (6 + rng() * 15), off: 4 + rng() * 48, c: rng() }); }
+  const carts = [{ x: -13, off: 26, word: 'BÁNH MÌ', color: '#ffc24a' }, { x: 15, off: 14, word: 'PHỞ 24H', color: '#ff7a45' }, { x: -19, off: 42, word: 'CÀ PHÊ', color: '#4fd1c5' }];
+  const shops = []; for (const side of [-1, 1]) for (let k = 0; k < 4; k++) shops.push({ side, a: 4 + k * 13 + rng() * 3, len: 8 + rng() * 3, word: ['NHÀ HÀNG', 'TIỆM VÀNG', 'KARAOKE', 'TRÀ SỮA', 'BÚN BÒ', 'SÁCH', 'ĐIỆN THOẠI', 'CƠM TẤM'][(side + 1) * 2 + k], color: NEONS[(k * 3 + (side + 1)) % NEONS.length] });
+  const plazaWin = []; for (let i = 0; i < 160; i++) plazaWin.push(rng() < .3 ? (rng() < .7 ? '#ffbf7a' : '#cfe3ff') : null);
+  for (const side of [-1, 1]) { let z = intro ? 60 : 4; while (z < FAR) { const b = makeBld(side, z); blds.push(b); z += b.depth + rnd(1.5, 7); } }
   // overhead sign gantries, sodium street lamps, steam vents and overhead cables
   const gantries = []; for (let z = 60; z < FAR; z += 140) gantries.push({ z });
   const lamps = []; for (let z = 8; z < FAR; z += 28) { lamps.push({ side: 1, z }); lamps.push({ side: -1, z: z + 14 }); }
@@ -1044,7 +1066,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     const dy = scrollY - lastY; lastY = scrollY;
     scrollVel = scrollVel * .9 + Math.abs(dy) / Math.max(dt, .001) * .1;
     boost = Math.max(0, boost - dt * .7);
-    const parked = curIdx === chapters.length - 1;
+    const parked = intro || curIdx === chapters.length - 1;
     if (game.on) gameStep(dt);
     else { const target = parked ? 0 : reduce ? 8 : 10 + Math.min(scrollVel * .04, 30) + boost * 60; speed += (target - speed) * Math.min(1, dt * 2.4); }
     const dz = speed * dt; travel += dz;
@@ -1095,6 +1117,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     const N = 70; let prevZ = NEAR;
     for (let i = 1; i <= N; i++) {
       const z = NEAR * Math.pow(FAR / NEAR, i / N), a = fogA(z);
+      if (z < plaza.end) { g.fillStyle = mixFog(24, 22, 20, a); quad([P(-26, 0, prevZ), P(-26, 0, z), P(26, 0, z), P(26, 0, prevZ)]); prevZ = z; continue; }
       g.fillStyle = mixFog(15, 16, 17, a);
       quad([P(-6.6, 0, prevZ), P(-6.6, 0, z), P(6.6, 0, z), P(6.6, 0, prevZ)]);
       // kerb and sidewalk
@@ -1109,10 +1132,11 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
       }
       prevZ = z;
     }
+    if (plaza.end > NEAR) drawPlazaFloor();
     // lane markings
     const seg = 9, dash = 3.6, off = travel % seg;
     for (let z = seg - off; z < 150; z += seg) {
-      const z1 = Math.max(NEAR, z), z2 = z + dash; if (z2 <= NEAR) continue;
+      const z1 = Math.max(NEAR, z, plaza.end), z2 = z + dash; if (z2 <= z1) continue;
       const a = 1 - fogA(z);
       for (const lx of [-3.2, 3.2]) {
         g.fillStyle = `rgba(215,214,206,${.45 * a})`;
@@ -1123,12 +1147,13 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     for (let i = 1; i <= 40; i++) {
       const z = NEAR * Math.pow(140 / NEAR, i / 40), a = 1 - fogA(z);
       g.fillStyle = `rgba(214,170,80,${.5 * a})`;
+      if (z < plaza.end) { prevZ = z; continue; }
       for (const cx of [-.16, .16]) quad([P(cx - .05, 0, prevZ), P(cx - .05, 0, z), P(cx + .05, 0, z), P(cx + .05, 0, prevZ)]);
       prevZ = z;
     }
 
     // advance objects
-    blds.forEach(b => b.z -= dz);
+    blds.forEach(b => b.z -= dz); plaza.end -= dz;
     gantries.forEach(l => l.z -= dz); lamps.forEach(l => l.z -= dz); vents.forEach(v => v.z -= dz); wires.forEach(w => w.z -= dz);
     const loop = (arr, span) => { const mx = Math.max(...arr.map(o => o.z)); arr.forEach(o => { if (o.z < NEAR) o.z = mx + span; }); };
     loop(lamps, 14); loop(vents, rnd(40, 80)); loop(wires, rnd(18, 40));
@@ -1145,7 +1170,8 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     const items = [];
     blds.forEach(b => items.push({ z: b.z, t: 'b', o: b }));
     gantries.forEach(l => items.push({ z: l.z, t: 'g', o: l }));
-    cars.forEach(c => items.push({ z: c.z, t: 'c', o: c }));
+    cars.forEach(c => { if (c.z > plaza.end + 4) items.push({ z: c.z, t: 'c', o: c }); });
+    if (plaza.end > NEAR - 60) addPlazaItems(items);
     lamps.forEach(l => items.push({ z: l.z, t: 'l', o: l }));
     vents.forEach(v => items.push({ z: v.z, t: 'v', o: v }));
     wires.forEach(w => items.push({ z: w.z, t: 'w', o: w }));
@@ -1157,6 +1183,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
       else if (it.t === 'l') drawLamp(it.o);
       else if (it.t === 'v') drawVent(it.o, now);
       else if (it.t === 'w') drawWire(it.o);
+      else if (it.t === 'p') it.o(now);
       else drawCar(it.o);
     }
 
@@ -1383,6 +1410,79 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     const vg = g.createRadialGradient(W / 2, H * .45, Math.min(W, H) * .3, W / 2, H * .45, Math.max(W, H) * .8);
     vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, `rgba(0,0,0,${.55 + boost * .2})`);
     g.fillStyle = vg; g.fillRect(0, 0, W, H);
+  }
+  function drawPlazaFloor() { // stone tiles: a square grid seen in perspective
+    const start = plaza.end - 58, zA = Math.max(NEAR + .05, start), zB = plaza.end;
+    if (zB <= zA) return;
+    g.lineWidth = 1;
+    for (let z = Math.ceil(start / 3) * 3; z < zB; z += 3) { if (z < zA) continue; const a = 1 - fogA(z); g.strokeStyle = `rgba(160,150,135,${.13 * a})`; const l = P(-26, 0, z), r = P(26, 0, z); g.beginPath(); g.moveTo(l[0], l[1]); g.lineTo(r[0], r[1]); g.stroke(); }
+    for (let x = -24; x <= 24; x += 3) { g.strokeStyle = 'rgba(160,150,135,.08)'; const n = P(x, 0, zA), f = P(x, 0, zB); g.beginPath(); g.moveTo(n[0], n[1]); g.lineTo(f[0], f[1]); g.stroke(); }
+  }
+  function addPlazaItems(items) {
+    const pe = plaza.end, start = pe - 58;
+    items.push({ z: pe + .5, t: 'p', o: () => drawPlazaWalls(pe, start) });
+    bikes.forEach(b => { const z = start + b.off; if (z > NEAR + .5) items.push({ z, t: 'p', o: () => drawBike(b.x, z, b.c) }); });
+    carts.forEach(c => { const z = start + c.off; if (z > NEAR + .5) items.push({ z, t: 'p', o: now => drawCart(c, z, now) }); });
+    for (const off of [10, 22, 34, 46]) { const z = start + off; if (z > NEAR + .5) items.push({ z, t: 'p', o: now => drawLights(z, now) }); }
+  }
+  function drawPlazaWalls(pe, start) {
+    const zA = Math.max(NEAR + .05, start), H2 = 20;
+    for (const side of [-1, 1]) {
+      const x = side * 26;
+      if (pe > zA) { // side facade facing into the square
+        g.fillStyle = mixFog(26, 25, 27, fogA((zA + pe) / 2)); quad([P(x, 0, zA), P(x, H2, zA), P(x, H2, pe), P(x, 0, pe)]);
+        let wi = side < 0 ? 0 : 80;
+        for (let y = 5; y < H2 - 1; y += 1.8) for (let z = Math.max(zA, start + 8); z < pe - 1; z += 2) {
+          const c = plazaWin[wi++ % 160]; if (!c) continue;
+          g.fillStyle = hexA(c, .4 * (1 - fogA(z))); quad([P(x - side * .01, y, z), P(x - side * .01, y + .8, z), P(x - side * .01, y + .8, z + 1), P(x - side * .01, y, z + 1)]);
+        }
+        shops.filter(sh => sh.side === side).forEach(sh => { // lit shopfront boards at street level
+          const z1 = Math.max(zA, start + sh.a), z2 = start + sh.a + sh.len; if (z2 <= z1) return;
+          const a = 1 - fogA((z1 + z2) / 2);
+          g.fillStyle = hexA('#ffbf7a', .13 * a); quad([P(x, 0, z1), P(x, 2.6, z1), P(x, 2.6, z2), P(x, 0, z2)]);
+          g.fillStyle = `rgba(10,10,11,${.92 * a})`; quad([P(x, 2.9, z1), P(x, 4.3, z1), P(x, 4.3, z2), P(x, 2.9, z2)]);
+          const m = P(x, 3.6, (z1 + z2) / 2), top = P(x, 4.3, (z1 + z2) / 2), fs = (m[1] - top[1]) * 1.4;
+          if (fs > 4 && z2 - z1 > 3) { g.font = `700 ${fs}px ${CJK}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = hexA(sh.color, .95 * a); g.fillText(sh.word, m[0], m[1], Math.abs(P(x, 3.6, z2)[0] - P(x, 3.6, z1)[0]) * .9); g.textBaseline = 'alphabetic'; }
+        });
+      }
+      // end wall that closes the square, with the street opening in the middle
+      if (pe > NEAR + .5) {
+        const a = fogA(pe); g.fillStyle = mixFog(26, 25, 27, a);
+        quad([P(side * 9.6, 0, pe), P(side * 9.6, H2 + 4, pe), P(x, H2 + 4, pe), P(x, 0, pe)]);
+        let wi = side < 0 ? 40 : 120;
+        for (let y = 5; y < H2 + 3; y += 1.8) for (let xx = 11; xx < 25; xx += 1.6) {
+          const c = plazaWin[wi++ % 160]; if (!c) continue;
+          g.fillStyle = hexA(c, .4 * (1 - a)); quad([P(side * xx, y, pe), P(side * xx, y + .8, pe), P(side * (xx + .9), y + .8, pe), P(side * (xx + .9), y, pe)]);
+        }
+      }
+    }
+  }
+  function drawBike(x, z, c) { // parked scooter seen from behind: wheel, body, seat, a small red tail light
+    const a = 1 - fogA(z); if (a < .05) return;
+    const b = P(x, 0, z), t = P(x, 1.1, z), w = (P(x + .35, 0, z)[0] - b[0]);
+    g.fillStyle = `rgba(8,8,9,${a})`; g.fillRect(b[0] - w * .5, t[1], w, b[1] - t[1]);
+    g.fillRect(b[0] - w * .9, t[1] + (b[1] - t[1]) * .15, w * 1.8, (b[1] - t[1]) * .28);
+    g.fillStyle = `rgba(255,60,70,${.85 * a})`; g.fillRect(b[0] - w * .3, t[1] + (b[1] - t[1]) * .48, w * .6, Math.max(1, w * .25));
+    if (c > .7) { g.fillStyle = `rgba(242,239,230,${.5 * a})`; g.fillRect(b[0] - w * .9, t[1] - w * .4, w * .3, w * .3); }
+  }
+  function drawCart(c, z, now) { // street-food cart with a lit awning and a hand-painted sign
+    const a = 1 - fogA(z); if (a < .05) return;
+    const L = P(c.x - 1.3, 1.1, z), R = P(c.x + 1.3, 0, z), A = P(c.x - 1.6, 2.4, z), B = P(c.x + 1.6, 2.1, z);
+    g.fillStyle = hexA('#ffbf7a', .12 * a); g.fillRect(A[0] - (R[0] - L[0]) * .3, A[1], (R[0] - L[0]) * 1.6, R[1] - A[1]);
+    g.fillStyle = `rgba(20,18,16,${a})`; g.fillRect(L[0], L[1], R[0] - L[0], R[1] - L[1]);
+    g.fillStyle = hexA(c.color, .85 * a); g.fillRect(A[0], A[1], B[0] - A[0], Math.max(1, B[1] - A[1]));
+    const s1 = P(c.x, 3.4, z), s0 = P(c.x, 2.6, z), fs = (s0[1] - s1[1]) * 1.1;
+    if (fs > 4) { g.font = `700 ${fs}px ${CJK}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = hexA(c.color, a); g.fillText(c.word, s1[0], (s0[1] + s1[1]) / 2); g.textBaseline = 'alphabetic'; }
+  }
+  function drawLights(z, now) { // string of warm bulbs hung across the square
+    const a = 1 - fogA(z); if (a < .05) return;
+    g.strokeStyle = `rgba(90,84,74,${.8 * a})`; g.lineWidth = 1; g.beginPath();
+    for (let x = -26; x <= 26; x += 2) { const y = 7.5 - 2.2 * (1 - (x / 26) ** 2), p = P(x, y, z); x === -26 ? g.moveTo(p[0], p[1]) : g.lineTo(p[0], p[1]); }
+    g.stroke();
+    for (let x = -25; x <= 25; x += 2) {
+      const y = 7.5 - 2.2 * (1 - (x / 26) ** 2) - .25, p = P(x, y, z), r = Math.min(5, Math.max(1, 5 / z * F / 100));
+      g.fillStyle = `rgba(255,205,140,${(.65 + .25 * Math.sin(now / 900 + x)) * a})`; g.beginPath(); g.arc(p[0], p[1], r, 0, 6.283); g.fill();
+    }
   }
   function roundRect(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
 
