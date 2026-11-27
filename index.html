@@ -347,11 +347,13 @@ html.driving { overflow: hidden; }
 @keyframes gpopCalm { 0%, 75% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, 0); } }
 .ghelp { position: absolute; top: calc(64px + 4vh + 70px); left: 0; right: 0; margin: 0; max-width: none; text-align: center; font: 500 13px/1.4 var(--f-mono); color: var(--ink); transition: opacity .6s; padding-inline: 16px; }
 .ghelp .tc { display: none; }
+@media (max-width: 380px) { .ghud .gdist { display: none; } }
 @media (hover: none) { .ghelp .kb { display: none; } .ghelp .tc { display: inline; } }
 .ghelp.gone { opacity: 0; }
 @media (max-width: 800px) {
   .ghud { top: calc(58px + 2vh); gap: 12px; padding: 6px 6px 6px 12px; font-size: 9px; }
   .ghud b { font-size: 13px; }
+  .gscore b { font-size: 17px; }
   .ghelp { top: calc(58px + 2vh + 62px); font-size: 12px; }
   .driving .cockpit .screen { visibility: hidden; }
 }
@@ -748,7 +750,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 <div class="game" id="game" hidden>
   <div class="ghud">
     <div class="gscore"><span>Score</span><b id="gScore">0</b></div>
-    <div><span>Distance</span><b id="gDist">0.00 km</b></div>
+    <div class="gdist"><span>Distance</span><b id="gDist">0.00 km</b></div>
     <div><span>Near misses</span><b id="gNear">0</b></div>
     <div><span>Best</span><b id="gBest">0</b></div>
     <button class="btn ghost" type="button" id="gExit">Exit</button>
@@ -945,6 +947,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     s.connect(f); f.connect(e); e.connect(master); s.start(); s.stop(ac.currentTime + 1.3);
   }
   function setSound(on) {
+    if (on && !(window.AudioContext || window.webkitAudioContext)) on = false; // very old browsers: stay silent
     soundOn = on;
     if (on && !ac) buildAudio();
     if (ac) { if (on) ac.resume(); master.gain.setTargetAtTime(on ? .6 : 0, ac.currentTime, .6); if (!on) setTimeout(() => { if (!soundOn) ac.suspend(); }, 2500); }
@@ -1096,7 +1099,12 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   const gearEls = [...document.querySelectorAll('.gears span')];
   /* ---------- drive-it-yourself game ---------- */
   const gameEl = document.getElementById('game'), gDist = document.getElementById('gDist'), gNear = document.getElementById('gNear'), gBest = document.getElementById('gBest'), gScore = document.getElementById('gScore'), gPops = document.getElementById('gPops');
-  let bestScore = 0; try { bestScore = parseInt(localStorage.getItem('g2-best-score'), 10) || 0; } catch (e) {}
+  const storedBest = () => { try { return Math.max(0, Math.min(1e9, parseInt(localStorage.getItem('g2-best-score'), 10) || 0)); } catch (e) { return 0; } };
+  let bestScore = storedBest();
+  function saveBest() { // another tab may have set a higher record since this one loaded
+    bestScore = Math.max(bestScore, storedBest());
+    try { localStorage.setItem('g2-best-score', Math.floor(bestScore)); } catch (e) {}
+  }
   const fmt = n => Math.floor(n).toLocaleString('en-US');
   const gHelp = document.getElementById('gHelp');
   let helpTimer, gameReturnY = 0;
@@ -1105,25 +1113,29 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     Object.assign(game, { on: true, over: false, t: 0, dist: 0, near: 0, bumps: 0, score: 0, combo: 0, lastNear: -9, steer: 0, x: 1.6, flash: 0, keys: {}, touch: 0 });
     CAMX = 1.6; speed = 30; boost = 0;
     cars.length = 0; for (let i = 0; i < 6; i++) spawnCar(true);
-    document.documentElement.classList.add('driving'); gameEl.hidden = false; gBest.textContent = fmt(bestScore); gScore.textContent = '0'; gNear.textContent = '0'; gPops.replaceChildren();
+    document.documentElement.classList.add('driving'); gameEl.hidden = false; bestScore = Math.max(bestScore, storedBest()); gBest.textContent = fmt(bestScore); gScore.textContent = '0'; gNear.textContent = '0'; gPops.replaceChildren();
     gHelp.classList.remove('gone'); clearTimeout(helpTimer); helpTimer = setTimeout(() => gHelp.classList.add('gone'), 5000);
     document.getElementById('gExit').focus({ preventScroll: true });
   }
   function endGame() {
     game.on = false; game.over = false; document.documentElement.classList.remove('driving'); gameEl.hidden = true;
     CAMX = 1.6; cars.length = 0; for (let i = 0; i < 8; i++) spawnCar(true);
-    try { localStorage.setItem('g2-best-score', Math.floor(bestScore)); } catch (e) {}
+    saveBest();
     window.scrollTo(0, gameReturnY); document.getElementById('playGame').focus({ preventScroll: true });
   }
   function bump(c) { // no game over: you bounce off, slow down, lose your combo and keep driving
     game.bumps++; game.flash = .7; speed *= .3; c.z = -10; whoosh();
-    game.combo = 0; pop('Bump', 'combo lost', true);
+    pop('Bump', game.combo > 1 ? 'combo lost' : '', true); game.combo = 0;
   }
   function pop(text, sub, bad) { // floating "+points" over the road
     const el = document.createElement('div'); el.className = 'gpop' + (bad ? ' bad' : '');
     el.textContent = text; if (sub) { const s = document.createElement('small'); s.textContent = sub; el.append(s); }
-    el.addEventListener('animationend', () => el.remove()); gPops.append(el);
-    while (gPops.children.length > 3) gPops.firstChild.remove();
+    el.addEventListener('animationend', () => el.remove());
+    gPops.replaceChildren(el); // newest only, so quick chains stay readable
+  }
+  function passed(c) { // scored once, after the car is fully past (also when a slow frame skips it straight off screen)
+    if (c.done) return; c.done = true;
+    if (c.closest < 2.8 && speed > 20) nearMiss(c.closest);
   }
   function nearMiss(gap) {
     game.near++; game.combo = game.t - game.lastNear < 4 ? Math.min(5, game.combo + 1) : 1; game.lastNear = game.t;
@@ -1141,7 +1153,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     if (keyMap[e.code]) { game.keys[keyMap[e.code]] = true; e.preventDefault(); }
   });
   addEventListener('keyup', e => { if (keyMap[e.code]) game.keys[keyMap[e.code]] = false; });
-  addEventListener('pagehide', () => { try { localStorage.setItem('g2-best-score', Math.floor(bestScore)); } catch (e) {} });
+  addEventListener('pagehide', saveBest);
   addEventListener('blur', () => { game.keys = {}; game.touch = 0; });
   // touch: hold the left or right half of the screen
   addEventListener('pointerdown', e => { if (game.on && e.pointerType !== 'mouse' && !e.target.closest('button')) game.touch = e.clientX < innerWidth / 2 ? -1 : 1; });
@@ -1163,11 +1175,11 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     const want = Math.min(16, 7 + Math.floor(game.t / 7));
     if (cars.length < want && Math.random() < dt * 3) spawnCar(false);
     for (const c of cars) {
-      if (c.z < 2.8 && !c.done) {
+      if (c.z < 2.8 && !c.done) { // alongside you: still solid until it has fully passed
         const gap = Math.abs(c.x - game.x);
         if (gap < 1.55) { bump(c); continue; }
-        if (gap < 2.8 && speed > 20) { nearMiss(gap); c.done = true; }
-        else c.done = true;
+        c.closest = Math.min(c.closest ?? 9, gap);
+        if (c.z < .3) passed(c);
       }
     }
     // driving on the wrong side? the cluster says so
@@ -1283,7 +1295,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     }
     const gMax = Math.max(...gantries.map(l => l.z));
     gantries.forEach(l => { if (l.z < NEAR) l.z = gMax + 140; });
-    for (let i = cars.length - 1; i >= 0; i--) if (cars[i].z < NEAR - 2 || cars[i].z > FAR + 5) { cars.splice(i, 1); if (!game.on) spawnCar(false); }
+    for (let i = cars.length - 1; i >= 0; i--) if (cars[i].z < NEAR - 2 || cars[i].z > FAR + 5) { if (game.on && cars[i].z < NEAR) passed(cars[i]); cars.splice(i, 1); if (!game.on) spawnCar(false); }
 
     const items = [];
     blds.forEach(b => items.push({ z: b.z, t: 'b', o: b }));
