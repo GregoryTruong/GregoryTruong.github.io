@@ -79,7 +79,7 @@ a { color: var(--ambient); }
 
 /* ---------- route rail (chapters are a real sequence) ---------- */
 .route {
-  position: fixed; right: max(18px, env(safe-area-inset-right, 0px), calc(var(--pw) - 40px)); top: 50%; transform: translateY(-58%);
+  position: fixed; right: max(18px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-58%);
   z-index: 5; display: flex; flex-direction: column; gap: 14px; list-style: none; margin: 0; padding: 0;
 }
 .route::before { content: ""; position: absolute; right: 4px; top: 6px; bottom: 6px; width: 1px; background: var(--line); }
@@ -92,7 +92,7 @@ a { color: var(--ambient); }
 
 /* ---------- cabin: starlight roof, A-pillars ---------- */
 /* the frame around the glass: headliner with sun visors, A-pillars with a slice of side window and mirror, rear-view mirror */
-:root { --ch: clamp(150px, 25vh, 230px); --hh: calc(70px + 7vh + env(safe-area-inset-top, 0px)); --pw: clamp(14px, calc((100vw - 1080px) / 2 + 4px), 170px); }
+:root { --ch: clamp(150px, 25vh, 230px); --hh: calc(70px + 7vh + env(safe-area-inset-top, 0px)); --pw: clamp(14px, calc((100vw - 1080px) / 2 - 2px), 170px); }
 .cabin { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
 .cabin .defs { position: absolute; }
 .roof { position: absolute; top: 0; left: 0; right: 0; height: var(--hh); }
@@ -101,9 +101,9 @@ a { color: var(--ambient); }
 .side { position: absolute; top: 0; bottom: calc(var(--ch) - 38px); width: var(--pw); }
 .side.l { left: 0; } .side.r { right: 0; }
 .side svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.smir { display: none; position: absolute; bottom: 3%; width: 50%; aspect-ratio: 1.55; padding: 5px; background: linear-gradient(#1a1b20, #0b0c0f); border-radius: 46% 40% 34% 44% / 52% 46% 54% 48%; }
-.side.l .smir { left: 5%; } .side.r .smir { right: 5%; border-radius: 40% 46% 44% 34% / 46% 52% 48% 54%; }
-.smir canvas { width: 100%; height: 100%; display: block; border-radius: inherit; filter: brightness(1.15) saturate(.9); }
+.smir { display: none; position: absolute; bottom: 3%; width: 34%; aspect-ratio: 1.55; padding: 5px; background: linear-gradient(#1a1b20, #0b0c0f); border-radius: 46% 40% 34% 44% / 52% 46% 54% 48%; }
+.side.l .smir { left: 3%; } .side.r .smir { right: 3%; border-radius: 40% 46% 44% 34% / 46% 52% 48% 54%; }
+.smir canvas { width: 100%; height: 100%; display: block; border-radius: inherit; filter: brightness(1.5) contrast(1.15) saturate(1.1); }
 @media (min-width: 1280px) { .smir { display: block; } }
 .overhead { position: absolute; top: 0; left: calc(50% + 4vw); transform: translateX(-50%); width: clamp(70px, 8vw, 120px); height: calc(var(--hh) * .3); background: linear-gradient(#0b0c0f, #15161b); border: 1px solid rgba(232,228,220,.08); border-top: 0; border-radius: 0 0 14px 14px; display: flex; justify-content: center; align-items: flex-end; gap: 22%; padding-bottom: 7px; }
 .overhead i { width: 14%; aspect-ratio: 2.2; border-radius: 3px; background: #1c1d22; border: 1px solid rgba(232,228,220,.10); }
@@ -197,24 +197,15 @@ a { color: var(--ambient); }
 .stops button.on { color: var(--ambient); }
 .stops button.on i { background: var(--ambient); }
 .stops button:hover { color: var(--ink); }
-.np { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; }
-.art { width: 54px; height: 54px; border-radius: 4px; background: #1b1d21; border: 1px solid var(--line); position: relative; }
-.art::after { content: "GT"; position: absolute; inset: 0; display: grid; place-items: center; font: 400 13px/1 var(--f-display); color: var(--ambient); }
-.np small { display: block; color: var(--fog); font-size: 11px; }
+.np { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: center; }
 .play { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--ambient); background: rgba(232,228,220,0.060); color: var(--ambient); cursor: pointer; display: grid; place-items: center; }
-.eq { position: absolute; inset: 12px 10px; display: flex; gap: 3px; align-items: flex-end; justify-content: center; visibility: hidden; }
-.art:has(.eq.on)::after { content: none; }
-.eq.on { visibility: visible; }
-.stations { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 6px; }
+#stSub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+@media (max-width: 1150px) { #stSub { display: none; } }
+.stations { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
 .stations button { font: 500 11px/1 var(--f-mono); color: var(--fog); background: #0d0f12; border: 1px solid var(--line); border-radius: 3px; padding: 8px 6px; cursor: pointer; white-space: nowrap; }
 .stations button[aria-pressed="true"] { color: var(--ambient); border-color: var(--ambient); }
 .radio-toast { position: fixed; left: 50%; bottom: calc(var(--ch) + 10px); transform: translateX(-50%); z-index: 6; font: 500 12px/1 var(--f-mono); letter-spacing: .06em; color: var(--ink); background: #0c0e11; border: 1px solid var(--line); border-radius: 3px; padding: 8px 12px; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; }
 .radio-toast.show { opacity: 1; }
-.eq span { width: 4px; height: 20%; max-height: 100%; background: var(--ambient); border-radius: 2px; opacity: .5; }
-.eq.on span { animation: eq .9s ease-in-out infinite alternate; opacity: 1; }
-.eq.on span:nth-child(2n) { animation-duration: .6s; }
-.eq.on span:nth-child(3n) { animation-duration: 1.2s; }
-@keyframes eq { from { height: 15%; } to { height: 100%; } }
 .view .fine { color: var(--fog); font-size: 10px; line-height: 1.4; }
 .tiles { display: grid; gap: 6px; }
 .tile { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: center; padding: 7px 9px; border-radius: 4px; border: 1px solid rgba(232,228,220,0.080); background: rgba(232,228,220,0.020); }
@@ -227,7 +218,7 @@ a { color: var(--ambient); }
 main { position: relative; z-index: 2; }
 .chapter {
   min-height: 100vh; display: flex; align-items: center;
-  padding-block: 10vh 30vh;
+  padding-block: max(10vh, calc(var(--hh) + 16px)) 30vh;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
@@ -396,7 +387,7 @@ html.driving { overflow: hidden; }
 .note { font-size: 13px; color: var(--fog); }
 footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36vh; font: 400 12px/1.5 var(--f-mono); color: var(--fog); }
 
-@media (max-height: 880px) and (min-width: 801px) {
+@media (max-height: 960px) and (min-width: 801px) {
   .yoke { bottom: -60%; }
   :root { --hh: calc(64px + 5vh + env(safe-area-inset-top, 0px)); }
   .cluster { padding: 8px 12px; }
@@ -413,8 +404,8 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   .yoke, .cluster .col, .view, .vent, .keys, .aclock, .tweeter { display: none; }
   .visors path:not(.amb) { display: none; }
   .overhead { display: none; }
-  .mirror { left: 50%; top: calc(env(safe-area-inset-top, 0px) + 30px); width: 88px; aspect-ratio: auto; height: 42px; }
-  .mirror::before { top: -30px; height: 46px; }
+  .mirror { left: 50%; top: calc(env(safe-area-inset-top, 0px) + 48px); width: 84px; aspect-ratio: auto; height: 40px; }
+  .mirror::before { top: -48px; height: 64px; width: 4px; margin-left: -2px; }
   .cluster { left: 50%; transform: translateX(-50%); width: auto; bottom: 62px; height: 66px; padding: 4px 14px; grid-template-columns: auto; border-radius: 4px; }
   .dial { width: 58px; }
   .dial .num b { font-size: 17px; }
@@ -430,7 +421,6 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 }
 @media (prefers-reduced-motion: reduce) {
   .js .reveal { opacity: 1; transform: none; transition: none; }
-  .eq.on span { animation: none; height: 60%; }
   .stars i.tw, .stars .shoot { animation: none; }
   .stars .shoot { display: none; }
 }
@@ -695,9 +685,9 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     <path d="M0 34 C 220 2, 780 2, 1000 34" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
     <path d="M40 34 C 240 8, 760 8, 960 34" fill="none" stroke="#000" stroke-opacity=".7" stroke-width="3" stroke-dasharray="16 5" vector-effect="non-scaling-stroke"/>
     <path d="M40 36 C 240 10, 760 10, 960 36" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="1" vector-effect="non-scaling-stroke"/>
-    <g class="tweeter" fill="none" stroke="rgba(232,228,220,.12)" vector-effect="non-scaling-stroke">
-      <ellipse cx="106" cy="52" rx="34" ry="8" fill="#0b0c0e" stroke="rgba(232,228,220,.16)" vector-effect="non-scaling-stroke"/><ellipse cx="106" cy="52" rx="26" ry="6" vector-effect="non-scaling-stroke"/><ellipse cx="106" cy="52" rx="18" ry="4.2" vector-effect="non-scaling-stroke"/><ellipse cx="106" cy="52" rx="10" ry="2.4" vector-effect="non-scaling-stroke"/>
-      <ellipse cx="894" cy="52" rx="34" ry="8" fill="#0b0c0e" stroke="rgba(232,228,220,.16)" vector-effect="non-scaling-stroke"/><ellipse cx="894" cy="52" rx="26" ry="6" vector-effect="non-scaling-stroke"/><ellipse cx="894" cy="52" rx="18" ry="4.2" vector-effect="non-scaling-stroke"/><ellipse cx="894" cy="52" rx="10" ry="2.4" vector-effect="non-scaling-stroke"/>
+    <g class="tweeter" fill="none" stroke="rgba(232,228,220,.22)" stroke-dasharray="1 2" vector-effect="non-scaling-stroke">
+      <ellipse cx="106" cy="52" rx="34" ry="8" fill="#060607" stroke="rgba(214,216,222,.42)" stroke-dasharray="none" vector-effect="non-scaling-stroke"/><ellipse cx="106" cy="52" rx="26" ry="6" vector-effect="non-scaling-stroke"/><ellipse cx="106" cy="52" rx="18" ry="4.2" vector-effect="non-scaling-stroke"/><ellipse cx="106" cy="52" rx="10" ry="2.4" vector-effect="non-scaling-stroke"/>
+      <ellipse cx="894" cy="52" rx="34" ry="8" fill="#060607" stroke="rgba(214,216,222,.42)" stroke-dasharray="none" vector-effect="non-scaling-stroke"/><ellipse cx="894" cy="52" rx="26" ry="6" vector-effect="non-scaling-stroke"/><ellipse cx="894" cy="52" rx="18" ry="4.2" vector-effect="non-scaling-stroke"/><ellipse cx="894" cy="52" rx="10" ry="2.4" vector-effect="non-scaling-stroke"/>
     </g>
     <linearGradient id="leatherShade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".15"/><stop offset="1" stop-color="#000" stop-opacity=".75"/></linearGradient>
     <path class="leather" d="M0 92 C 300 70, 700 70, 1000 92 L1000 200 L0 200 Z"/>
@@ -800,19 +790,17 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
       <p class="fine">The live &kappa; of the road behind you, from &kappa;(s) = 0.9 sin(s/110) + 0.25 sin(&phi;&sup2;s/110). The dot is now.</p>
     </div>
     <div class="view" data-view="music" hidden>
-      <div class="vhead"><span>Now playing</span><span id="musicState">Paused</span></div>
+      <div class="vhead"><span><b id="musicState">Paused</b> · <span id="stName">Neon Exit</span></span><span id="stSub">Slow synth pads, 80 bpm</span></div>
       <div class="np">
-        <div class="art"><div class="eq" id="eq"><span></span><span></span><span></span><span></span><span></span></div></div>
-        <div><h4 id="stName">Neon Exit</h4><small id="stSub">Slow synth pads, 80 bpm</small></div>
         <button class="play" id="playBtn" type="button" aria-label="Play music"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path id="playIcon" d="M8 5v14l11-7z"/></svg></button>
+        <div class="stations" role="group" aria-label="Pick a station">
+          <button type="button" data-station="neon" aria-pressed="true" title="Neon Exit">Neon</button>
+          <button type="button" data-station="rain" aria-pressed="false" title="Rain Radio">Rain</button>
+          <button type="button" data-station="pulse" aria-pressed="false" title="Highway Pulse">Pulse</button>
+          <button type="button" data-station="engine" aria-pressed="false" title="Engine only">Engine</button>
+        </div>
       </div>
-      <div class="stations" role="group" aria-label="Pick a station">
-        <button type="button" data-station="neon" aria-pressed="true">Neon Exit</button>
-        <button type="button" data-station="rain" aria-pressed="false">Rain Radio</button>
-        <button type="button" data-station="pulse" aria-pressed="false">Highway Pulse</button>
-        <button type="button" data-station="engine" aria-pressed="false">Engine only</button>
-      </div>
-      <p class="fine">All four are generated live in your browser with the Web Audio API. No audio files.</p>
+      <p class="fine">Made live in your browser with the Web Audio API. No audio files.</p>
     </div>
     <div class="view" data-view="projects" hidden>
       <div class="vhead"><span>Projects</span><span>Live demo included</span></div>
@@ -1001,7 +989,8 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
       bass: [0, null, 0, 12, 0, null, 0, 12], bassVol: .1 },
     engine: { name: 'Engine only', sub: 'No music, just the car and the rain', music: false }
   };
-  let station = STATIONS[store('g2-station')] ? store('g2-station') : 'neon';
+  const isStation = id => Object.prototype.hasOwnProperty.call(STATIONS, id);
+  let station = isStation(store('g2-station')) ? store('g2-station') : 'neon';
   function buildAudio() {
     ac = new (window.AudioContext || window.webkitAudioContext)();
     master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
@@ -1078,6 +1067,8 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     const st = STATIONS[station], t = ac.currentTime, on = st.music !== false;
     if (instant) { music.gain.value = on ? 1 : 0; padGain.gain.value = st.pad || 0; }
     else {
+      music.gain.cancelScheduledValues(t); padGain.gain.cancelScheduledValues(t);
+      music.gain.setValueAtTime(music.gain.value, t); padGain.gain.setValueAtTime(padGain.gain.value, t);
       music.gain.setTargetAtTime(0, t, .08);
       if (on) music.gain.setTargetAtTime(1, t + .35, .15);
       padGain.gain.setTargetAtTime(st.pad || 0, t + .3, .3);
@@ -1087,7 +1078,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   }
   const toast = document.getElementById('radioToast'); let toastT;
   function setStation(id, announce) {
-    if (!STATIONS[id]) return;
+    if (!isStation(id)) return;
     station = id; store('g2-station', id);
     const st = STATIONS[id];
     document.getElementById('stName').textContent = st.name; document.getElementById('stSub').textContent = st.sub;
@@ -1119,7 +1110,6 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     if (on && !ac) buildAudio();
     if (ac) { if (on) ac.resume(); master.gain.setTargetAtTime(on ? .6 : 0, ac.currentTime, .6); if (!on) setTimeout(() => { if (!soundOn) ac.suspend(); }, 2500); }
     soundBtn.setAttribute('aria-pressed', on); soundBtn.textContent = on ? 'Sound on' : 'Sound off';
-    document.getElementById('eq').classList.toggle('on', on);
     document.getElementById('musicState').textContent = on ? 'Playing' : 'Paused';
     document.getElementById('playIcon').setAttribute('d', on ? 'M7 5h4v14H7zM13 5h4v14h-4z' : 'M8 5v14l11-7z');
     document.getElementById('playBtn').setAttribute('aria-label', on ? 'Pause music' : 'Play music');
@@ -1704,7 +1694,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
       if (!w || !h) continue;
       if (m.c.width !== w || m.c.height !== h) { m.c.width = w; m.c.height = h; }
       const sw = cv.width * (m.src === 'rear' ? .42 : .2), sh = Math.min(cv.height * .5, sw * h / w);
-      const sx = m.src === 'rear' ? (cv.width - sw) / 2 : m.src === 'l' ? cv.width * .04 : cv.width * .76;
+      const sx = m.src === 'rear' ? (cv.width - sw) / 2 : m.src === 'l' ? cv.width * .22 : cv.width * .58;
       const sy = horizon * DPR - sh * .45;
       m.x.setTransform(-1, 0, 0, 1, w, 0); m.x.drawImage(cv, sx, sy, sw, sh, 0, 0, w, h);
     }
