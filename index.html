@@ -9,7 +9,7 @@
 <title>Gregory Truong</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;600&family=STIX+Two+Text:ital@0;1&display=swap">
 <style>
 html, body { margin: 0; } img { max-width: 100%; } [hidden] { display: none !important; }
 /* Layout: a fixed canvas windshield on a rainy night city highway; scroll = distance driven; each chapter is an exit.
@@ -326,6 +326,16 @@ html.driving { overflow: hidden; }
   .ghelp { top: calc(58px + 2vh + 62px); font-size: 12px; }
   .driving .cockpit .screen { visibility: hidden; }
 }
+.eqs { margin: 4px 0 0; display: grid; }
+.eqs > div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 4px 18px; padding: 12px 0; border-top: 1px solid var(--line); }
+.eqs dt { font: 500 11px/1.6 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--fog); grid-row: 1 / span 2; }
+.eqs dd { margin: 0; font-size: 14px; color: #b9b5ad; }
+.eqs dd.formula { font: 400 20px/1.3 "STIX Two Text", "Cambria Math", "Times New Roman", serif; color: var(--ink); }
+.eqs sup { display: inline; font-size: .62em; vertical-align: .6em; line-height: 0; }
+.eqs sub { display: inline; font-size: .62em; vertical-align: -.25em; line-height: 0; }
+.eqs i { font-family: "STIX Two Text", "Cambria Math", "Times New Roman", serif; font-size: 1.08em; }
+@media (max-width: 560px) { .eqs > div { grid-template-columns: 1fr; } .eqs dt { grid-row: auto; } .eqs dd.formula { font-size: 17px; } }
+.kappa { width: 100%; height: 70px; display: block; }
 .kit .eyebrow { color: var(--fog); margin-bottom: 8px; display: block; }
 
 /* destination */
@@ -392,6 +402,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   <li><a href="#cars"><span>Car project</span><i></i></a></li>
   <li><a href="#stocks"><span>Stock project</span><i></i></a></li>
   <li><a href="#more"><span>Side quests</span><i></i></a></li>
+  <li><a href="#math"><span>Under the hood</span><i></i></a></li>
   <li><a href="#toolkit"><span>Toolkit</span><i></i></a></li>
   <li><a href="#contact"><span>Destination</span><i></i></a></li>
 </ol>
@@ -475,6 +486,11 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     <div class="view" data-view="map">
       <div class="vhead"><span>Route</span><span>Next · <b id="nextScreen">About</b></span></div>
       <ul class="stops" id="stops"></ul>
+    </div>
+    <div class="view" data-view="math" hidden>
+      <div class="vhead"><span>Steering curvature</span><span>&kappa; = <b id="kNow">0.000</b></span></div>
+      <canvas id="kappa" class="kappa" aria-label="Live plot of the steering curve kappa of s"></canvas>
+      <p class="fine">&kappa;(s) = 0.9 sin(s/110) + 0.25 sin(&phi;&sup2;s/110). The dot is you.</p>
     </div>
     <div class="view" data-view="music" hidden>
       <div class="vhead"><span>Now playing</span><span id="musicState">Paused</span></div>
@@ -641,9 +657,28 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     </div>
   </section>
 
-  <section class="chapter right" id="toolkit" data-name="Toolkit">
+  <section class="chapter right" id="math" data-name="Under the hood">
     <div class="inner">
-      <div class="sign reveal"><span class="exit">Exit 6</span><span class="to">Toolkit</span><span class="cn">Công cụ</span></div>
+      <div class="sign reveal"><span class="exit">Exit 6</span><span class="to">Under the hood</span><span class="cn">Toán học</span></div>
+      <div class="panel stack reveal">
+        <span class="eyebrow">How this site works</span>
+        <h2>The math behind the drive</h2>
+        <p>There's no 3D engine here. Every frame is drawn flat on a canvas from five equations.</p>
+        <dl class="eqs">
+          <div><dt>Perspective</dt><dd class="formula"><i>x</i>&prime; = <i>W</i>/2 + <i>f</i>&thinsp;(<i>x</i> &minus; <i>c</i>)&thinsp;/&thinsp;<i>z</i></dd><dd>Divide every point by its distance <i>z</i>. Far things shrink toward the horizon. That one division is the whole 3D effect.</dd></div>
+          <div><dt>Curves</dt><dd class="formula">&Delta;<i>x</i>(<i>z</i>) = 0.0022&thinsp;<i>&kappa;</i>&thinsp;<i>z</i><sup>2</sup></dd><dd>A circle of radius <i>R</i> drifts sideways by about <i>z</i><sup>2</sup>/2<i>R</i> (a second-order Taylor expansion). Shift each slice of road by <i>&kappa;z</i><sup>2</sup> and it bends.</dd></div>
+          <div><dt>Steering</dt><dd class="formula"><i>&kappa;</i>(<i>s</i>) = 0.9 sin(<i>s</i>/110) + 0.25 sin(<i>&phi;</i><sup>2</sup><i>s</i>/110)</dd><dd>Two waves whose frequencies differ by a factor of <i>&phi;</i><sup>2</sup>, the golden ratio squared. That ratio is irrational, so the road is quasi-periodic: the same stretch never comes back twice.</dd></div>
+          <div><dt>Skyline</dt><dd class="formula"><i>h<sub>n</sub></i> = 14 + 81&thinsp;{<i>n&phi;</i>}</dd><dd>Tower heights are the fractional parts of <i>n&phi;</i>. By Weyl's equidistribution theorem they spread evenly between short and tall, with no clumps of identical towers.</dd></div>
+          <div><dt>Fog</dt><dd class="formula"><i>&alpha;</i>(<i>z</i>) = min(1, 1.12&thinsp;(<i>z</i>/280)<sup>0.65</sup>)</dd><dd>A power law blends each colour into the smog, so the city fades out slowly instead of hitting a wall.</dd></div>
+        </dl>
+        <div class="links"><button class="btn" type="button" id="mathBtn" aria-pressed="false">Show the math on the road</button><a class="btn ghost" href="https://github.com/GregoryTruong/GregoryTruong.github.io/blob/main/index.html" target="_blank" rel="noopener">Read the code</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="toolkit" data-name="Toolkit">
+    <div class="inner">
+      <div class="sign reveal"><span class="exit">Exit 7</span><span class="to">Toolkit</span><span class="cn">Công cụ</span></div>
       <div class="panel kit reveal">
         <div><span class="eyebrow">Languages</span><div class="chips"><span>Python</span><span>SQL</span><span>TypeScript</span><span>JavaScript</span><span>Java</span><span>C</span><span>C++</span><span>HTML/CSS</span></div></div>
         <div><span class="eyebrow">Frameworks &amp; libraries</span><div class="chips"><span>React</span><span>Node.js</span><span>.NET</span><span>pandas</span><span>NumPy</span><span>scikit-learn</span><span>Plotly</span><span>Streamlit</span></div></div>
@@ -758,6 +793,14 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     document.getElementById('embed').replaceChildren(f);
   });
 
+  /* ---------- math view toggle ---------- */
+  const mathBtn = document.getElementById('mathBtn');
+  mathBtn.addEventListener('click', () => {
+    mathView = !mathView; mathBtn.setAttribute('aria-pressed', mathView);
+    mathBtn.textContent = mathView ? 'Hide the math' : 'Show the math on the road';
+    showApp(mathView ? 'math' : 'map'); // the car screen plots κ(s) live while math view is on
+  });
+
   /* ---------- centre screen ---------- */
   const jump = id => document.getElementById(id).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
   const stopsEl = document.getElementById('stops');
@@ -769,6 +812,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   const appBtns = [...document.querySelectorAll('.apps button')], views = [...document.querySelectorAll('.view')];
   const compact = matchMedia('(max-width: 800px)');
   let currentApp = 'map';
+  function showApp(app) { currentApp = app; syncApps(); views.forEach(v => v.hidden = v.dataset.view !== app); }
   const syncApps = () => appBtns.forEach(x => compact.matches ? x.removeAttribute('aria-pressed') : x.setAttribute('aria-pressed', x.dataset.app === currentApp));
   syncApps(); compact.addEventListener ? compact.addEventListener('change', syncApps) : compact.addListener(syncApps);
   appBtns.forEach(b => b.addEventListener('click', () => {
@@ -779,8 +823,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
       else jump({ map: 'start', projects: 'cars', contact: 'contact' }[app]);
       return;
     }
-    currentApp = app; syncApps();
-    views.forEach(v => v.hidden = v.dataset.view !== app);
+    showApp(app);
   }));
   document.querySelectorAll('[data-jump]').forEach(b => b.addEventListener('click', () => jump(b.dataset.jump)));
   document.getElementById('copyMini').addEventListener('click', e => {
@@ -893,7 +936,9 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   const rnd = (a, b) => a + Math.random() * (b - a);
   const hexA = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
 
-  let CAMX = 1.6; const CAMH = 1.3, NEAR = .6, FAR = 280;
+  let CAMX = 1.6; const CAMH = 1.3, NEAR = .6, FAR = 280, PHI = (1 + Math.sqrt(5)) / 2;
+  const towerN = { '-1': 0, '1': 0 }; // n for the golden-ratio skyline, per side of the street
+  let mathView = false;
   let curv = 0, skyShift = 0;
   const bend = z => curv * z * z * .0022;
   const P = (x, y, z) => [W / 2 + (x + bend(z) - CAMX) * F / z, horizon + (CAMH - y) * F / z];
@@ -942,7 +987,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   // street buildings
   const blds = [];
   function makeBld(side, z) {
-    const h = rnd(14, phone ? 60 : 95), depth = rnd(9, 22), off = rnd(9.5, 13);
+    const h = 14 + (phone ? 46 : 81) * ((++towerN[side] * PHI) % 1), depth = rnd(9, 22), off = rnd(9.5, 13); // h_n = 14 + 81{nφ}
     const cols = Math.max(3, Math.round(depth / 1.8)), rows = Math.max(4, Math.round(h / 2.2));
     const lit = []; for (let i = 0; i < cols * rows; i++) lit.push(Math.random() < .24 ? (Math.random() < .6 ? 0 : Math.random() < .7 ? 1 : 2) : -1);
     const stains = []; for (let i = 0; i < 3; i++) if (Math.random() < .6) stains.push({ z: rnd(0, depth - 1), w: rnd(.3, 1.2), top: rnd(h * .4, h) });
@@ -992,7 +1037,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   // speed lines
   const streaks = []; for (let i = 0; i < 70; i++) streaks.push({ a: Math.random() * Math.PI * 2, r: Math.random(), l: rnd(.08, .25) });
 
-  let travel = 0, speed = 12, lastY = scrollY, scrollVel = 0, last = performance.now();
+  let travel = 0, speed = intro ? 0 : 12, lastY = scrollY, scrollVel = 0, last = performance.now();
   const speedEl = document.getElementById('speed'), tripEl = document.getElementById('trip');
   const dialFill = document.getElementById('dialFill'), yokeEl = document.getElementById('yoke'), modeEl = document.getElementById('mode');
   const gearEls = [...document.querySelectorAll('.gears span')];
@@ -1071,7 +1116,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     else { const target = parked ? 0 : reduce ? 8 : 10 + Math.min(scrollVel * .04, 30) + boost * 60; speed += (target - speed) * Math.min(1, dt * 2.4); }
     const dz = speed * dt; travel += dz;
     // highway turns: the road snakes left and right as you drive
-    const curvTarget = game.on ? Math.sin(travel / 140) * .55 : reduce ? 0 : Math.sin(travel / 110) * .9 + Math.sin(travel / 47) * .25;
+    const curvTarget = game.on ? Math.sin(travel / 140) * .55 : reduce ? 0 : Math.sin(travel / 110) * .9 + Math.sin(PHI * PHI * travel / 110) * .25;
     curv += (curvTarget - curv) * Math.min(1, dt * 1.5);
     skyShift += (-curv * W * .18 - skyShift) * Math.min(1, dt * 2);
 
@@ -1191,6 +1236,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     const fg = g.createLinearGradient(0, horizon - H * .14, 0, horizon + H * .14);
     fg.addColorStop(0, 'rgba(90,84,74,0)'); fg.addColorStop(.5, 'rgba(96,88,76,.42)'); fg.addColorStop(1, 'rgba(90,84,74,0)');
     g.fillStyle = fg; g.fillRect(-W * .2, horizon - H * .14, W * 1.4, H * .28);
+    if (mathView) drawMath(now);
     g.restore();
 
     // speed lines on exit bursts
@@ -1410,6 +1456,41 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     const vg = g.createRadialGradient(W / 2, H * .45, Math.min(W, H) * .3, W / 2, H * .45, Math.max(W, H) * .8);
     vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, `rgba(0,0,0,${.55 + boost * .2})`);
     g.fillStyle = vg; g.fillRect(0, 0, W, H);
+  }
+  function drawMath(now) { // math view: the equations drawn live on top of the scene
+    const amber = 'rgba(214,161,92,', ink = 'rgba(232,228,220,';
+    g.font = '500 11px "JetBrains Mono", monospace'; g.textBaseline = 'middle';
+    // lines of constant depth z on the road
+    for (const z of [3, 6, 12, 24, 48, 96]) {
+      const L = P(-6.6, 0, z), R = P(6.6, 0, z);
+      g.strokeStyle = amber + '.55)'; g.lineWidth = 1; g.beginPath(); g.moveTo(L[0], L[1]); g.lineTo(R[0], R[1]); g.stroke();
+      g.fillStyle = amber + '.9)'; g.textAlign = 'left'; g.fillText(`z = ${z}`, R[0] + 8, R[1]);
+    }
+    // the centre line bent by κz², with the straight road for comparison
+    g.setLineDash([4, 5]); g.strokeStyle = ink + '.35)'; g.beginPath();
+    for (let z = 2; z < 140; z *= 1.15) { const q = [W / 2 + (0 - CAMX) * F / z, horizon + CAMH * F / z]; z === 2 ? g.moveTo(q[0], q[1]) : g.lineTo(q[0], q[1]); }
+    g.stroke(); g.setLineDash([]);
+    g.strokeStyle = amber + '.9)'; g.lineWidth = 2; g.beginPath();
+    for (let z = 2; z < 140; z *= 1.15) { const q = P(0, 0, z); z === 2 ? g.moveTo(q[0], q[1]) : g.lineTo(q[0], q[1]); }
+    g.stroke();
+    const tip = P(0, 0, 60); g.fillStyle = amber + '1)'; g.textAlign = 'left';
+    g.fillText(`Δx = 0.0022 κz²   κ = ${curv.toFixed(3)}`, tip[0] + 12, tip[1] - 14);
+    plotKappa();
+    g.textBaseline = 'alphabetic';
+  }
+  const kCv = document.getElementById('kappa'), kG = kCv.getContext('2d'), kNowEl = document.getElementById('kNow');
+  function plotKappa() {
+    if (kCv.offsetParent === null) return; // screen view hidden (phone, or another app open)
+    const w = kCv.clientWidth, h = kCv.clientHeight, d = Math.min(2, devicePixelRatio || 1);
+    if (kCv.width !== Math.round(w * d)) { kCv.width = Math.round(w * d); kCv.height = Math.round(h * d); }
+    kG.setTransform(d, 0, 0, d, 0, 0); kG.clearRect(0, 0, w, h);
+    const k = sv => Math.sin(sv / 110) * .9 + Math.sin(PHI * PHI * sv / 110) * .25, mid = h / 2, amp = (h / 2 - 6) / 1.15, span = 700;
+    kG.strokeStyle = 'rgba(232,228,220,.15)'; kG.lineWidth = 1; kG.beginPath(); kG.moveTo(0, mid); kG.lineTo(w, mid); kG.stroke();
+    kG.strokeStyle = 'rgba(214,161,92,.95)'; kG.lineWidth = 1.5; kG.beginPath();
+    for (let i = 0; i <= 140; i++) { const x = w * i / 140, y = mid - k(travel - span / 2 + span * i / 140) * amp; i ? kG.lineTo(x, y) : kG.moveTo(x, y); }
+    kG.stroke();
+    kG.fillStyle = '#e8e4dc'; kG.beginPath(); kG.arc(w / 2, mid - k(travel) * amp, 4, 0, 6.283); kG.fill();
+    const t = k(travel).toFixed(3); if (kNowEl.textContent !== t) kNowEl.textContent = t;
   }
   function drawPlazaFloor() { // stone tiles: a square grid seen in perspective
     const start = plaza.end - 58, zA = Math.max(NEAR + .05, start), zB = plaza.end;
