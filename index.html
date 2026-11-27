@@ -69,24 +69,92 @@ a { color: var(--ambient); }
 .route a.on { color: var(--ambient); }
 .route a.on i { border-color: var(--ambient); background: var(--ambient); box-shadow: 0 0 10px var(--ambient); }
 
-/* ---------- dashboard HUD ---------- */
-.hud {
-  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 3.2vh); transform: translateX(-50%);
-  z-index: 1; display: flex; align-items: flex-end; gap: clamp(16px, 4vw, 44px);
-  font-family: var(--f-mono); color: var(--ambient); text-shadow: 0 0 12px rgba(94,231,255,.6);
-  pointer-events: none; white-space: nowrap;
+/* ---------- cockpit: dash, yoke, cluster, centre screen ---------- */
+.cockpit {
+  --ch: clamp(170px, 30vh, 270px);
+  --cw: min(clamp(260px, 27vw, 400px), calc(var(--ch) * 1.6));
+  position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--ch) + env(safe-area-inset-bottom, 0px));
+  z-index: 3; pointer-events: none; font-family: var(--f-mono);
 }
-.hud .speed { font-size: clamp(30px, 5vw, 48px); font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; text-align: center; transition: color .3s; }
-.hud.boost .speed { color: var(--neon); text-shadow: 0 0 18px var(--neon); }
-.hud small { display: block; font-size: 10px; letter-spacing: .16em; color: var(--fog); text-shadow: none; margin-top: 6px; text-transform: uppercase; }
-.hud .side { font-size: 13px; font-variant-numeric: tabular-nums; min-width: 9ch; }
-.hud .side.left { text-align: right; }
+.cockpit .dash { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.cockpit .amb { transition: stroke .4s; }
+.cluster {
+  position: absolute; left: 13%; bottom: 24%; width: var(--cw); height: 56%;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px;
+  padding: 10px 18px; overflow: hidden; border-radius: 16px 16px 30px 30px;
+  background: linear-gradient(180deg, rgba(10,16,32,.92), rgba(3,5,12,.96));
+  border: 1px solid rgba(94,231,255,.22);
+  box-shadow: inset 0 0 28px rgba(94,231,255,.08), 0 0 22px rgba(94,231,255,.10);
+  color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.cluster .col { display: grid; gap: 8px; font-size: 11px; color: var(--fog); letter-spacing: .08em; text-transform: uppercase; min-width: 0; }
+.cluster .col b { display: block; font-size: 14px; color: var(--ink); letter-spacing: .02em; text-transform: none; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.cluster .col.r { text-align: right; }
+.gears { display: flex; gap: 6px; font-size: 12px; letter-spacing: 0; }
+.gears span.on { color: var(--ambient); text-shadow: 0 0 8px var(--ambient); font-weight: 600; }
+.dial { position: relative; width: min(clamp(110px, 10vw, 150px), calc(var(--ch) * .5)); aspect-ratio: 1; max-width: 100%; }
+.dial svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.dial .track { fill: none; stroke: rgba(154,147,184,.18); stroke-width: 6; stroke-linecap: round; }
+.dial .fill { fill: none; stroke: var(--ambient); stroke-width: 6; stroke-linecap: round; filter: drop-shadow(0 0 6px var(--ambient)); transition: stroke .3s; }
+.dial .num { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.dial .num b { font-size: clamp(26px, 2.6vw, 38px); line-height: 1; font-weight: 600; color: var(--ink); text-shadow: 0 0 14px rgba(94,231,255,.5); }
+.dial .num small { font-size: 9px; letter-spacing: .18em; color: var(--fog); margin-top: 4px; }
+.cockpit.boost .dial .fill { stroke: var(--neon); filter: drop-shadow(0 0 8px var(--neon)); }
+.cockpit.boost .dial .num b { color: var(--neon); text-shadow: 0 0 16px var(--neon); }
+.yoke {
+  position: absolute; left: calc(13% + var(--cw) / 2); bottom: -40%;
+  width: calc(var(--cw) * 1.62); transform: translateX(-50%); transform-origin: 50% 70%;
+}
+.yoke svg { width: 100%; height: auto; display: block; overflow: visible; }
+.screen {
+  position: absolute; right: 9%; bottom: 14%; width: clamp(320px, 33vw, 500px); height: 74%;
+  pointer-events: auto; display: grid; grid-template-columns: 54px minmax(0, 1fr);
+  background: #050912; border: 1px solid rgba(94,231,255,.28); border-radius: 16px; overflow: hidden;
+  transform: perspective(1000px) rotateY(-9deg); transform-origin: right center;
+  box-shadow: 0 0 0 4px #03050b, 0 0 30px rgba(94,231,255,.16), inset 0 0 40px rgba(94,231,255,.05);
+}
+.apps { display: flex; flex-direction: column; gap: 4px; padding: 8px 6px; background: rgba(94,231,255,.04); border-right: 1px solid rgba(94,231,255,.14); }
+.apps button {
+  width: 40px; height: 34px; border-radius: 10px; border: 0; cursor: pointer; display: grid; place-items: center;
+  background: transparent; color: var(--fog);
+}
+.apps button svg { width: 20px; height: 20px; }
+.apps button[aria-pressed="true"] { background: rgba(94,231,255,.16); color: var(--ambient); box-shadow: inset 0 0 0 1px rgba(94,231,255,.4); }
+.apps button:hover { color: var(--ink); }
+.view { padding: 10px 14px 12px; overflow: auto; min-width: 0; display: grid; align-content: start; gap: 8px; font-size: 12px; color: var(--ink); scrollbar-width: thin; }
+.view .vhead { display: flex; justify-content: space-between; gap: 8px; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--fog); }
+.view .vhead b { color: var(--ambient); font-weight: 600; }
+.view h4 { margin: 0; font: 600 14px/1.2 var(--f-body); }
+.stops { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 8px; list-style: none; margin: 0; padding: 0; }
+.stops button { width: 100%; text-align: left; background: none; border: 0; color: var(--fog); font: 500 11px/1.3 var(--f-mono); padding: 3px 0; cursor: pointer; display: flex; gap: 6px; align-items: center; }
+.stops button i { width: 6px; height: 6px; border-radius: 50%; border: 1px solid currentColor; flex: none; }
+.stops button.on { color: var(--ambient); }
+.stops button.on i { background: var(--ambient); box-shadow: 0 0 6px var(--ambient); }
+.stops button:hover { color: var(--ink); }
+.np { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; }
+.art { width: 54px; height: 54px; border-radius: 10px; background: conic-gradient(from 200deg, #ff3df2, #5ee7ff, #8b6bff, #ff3df2); position: relative; }
+.art::after { content: "GT"; position: absolute; inset: 0; display: grid; place-items: center; font: 400 13px/1 var(--f-display); color: #07040f; }
+.np small { display: block; color: var(--fog); font-size: 11px; }
+.play { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--ambient); background: rgba(94,231,255,.12); color: var(--ambient); cursor: pointer; display: grid; place-items: center; }
+.eq { display: flex; gap: 3px; align-items: flex-end; height: 22px; }
+.eq span { width: 4px; height: 20%; background: var(--ambient); border-radius: 2px; opacity: .5; }
+.eq.on span { animation: eq .9s ease-in-out infinite alternate; opacity: 1; }
+.eq.on span:nth-child(2n) { animation-duration: .6s; background: var(--neon); }
+.eq.on span:nth-child(3n) { animation-duration: 1.2s; }
+@keyframes eq { from { height: 15%; } to { height: 100%; } }
+.view .fine { color: var(--fog); font-size: 10px; line-height: 1.4; }
+.tiles { display: grid; gap: 6px; }
+.tile { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: center; padding: 7px 9px; border-radius: 9px; border: 1px solid rgba(94,231,255,.16); background: rgba(94,231,255,.04); }
+.tile b { font: 600 12px/1.2 var(--f-body); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tile .acts { display: flex; gap: 6px; }
+.mini { font: 600 10px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ambient); background: none; border: 1px solid rgba(94,231,255,.35); border-radius: 6px; padding: 5px 7px; cursor: pointer; text-decoration: none; white-space: nowrap; }
+.mini:hover { background: rgba(94,231,255,.12); }
 
 /* ---------- chapters ---------- */
 main { position: relative; z-index: 2; }
 .chapter {
   min-height: 125vh; display: flex; align-items: center;
-  padding-block: 14vh 30vh;
+  padding-block: 14vh 36vh;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
@@ -175,17 +243,32 @@ p { margin: 0; max-width: 62ch; color: #d6d6ea; }
 .email { font: 400 15px/1 var(--f-mono); padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; user-select: all; overflow-wrap: anywhere; }
 .copy { font: 600 12px/1 var(--f-body); }
 .note { font-size: 13px; color: var(--fog); }
-footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 34vh; font: 400 12px/1.5 var(--f-mono); color: var(--fog); }
+footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36vh; font: 400 12px/1.5 var(--f-mono); color: var(--fog); }
 
+@media (max-height: 760px) and (min-width: 721px) {
+  .yoke { bottom: -60%; }
+  .cluster { padding: 8px 12px; }
+  .cluster .col { gap: 4px; font-size: 9px; }
+  .cluster .col b { font-size: 12px; }
+  .cluster .col > div:last-child { display: none; }
+}
 @media (max-width: 720px) {
   .route { display: none; }
   .inner { padding-right: 0; }
   .gauges { grid-template-columns: minmax(0, 1fr); }
-  .hud .side { display: none; }
-  .chapter { padding-block: 12vh 26vh; }
+  .chapter { padding-block: 12vh 30vh; }
+  .cockpit { --ch: 132px; }
+  .yoke, .cluster .col, .view { display: none; }
+  .cluster { left: 50%; transform: translateX(-50%); width: auto; bottom: 62px; height: 66px; padding: 4px 14px; grid-template-columns: auto; border-radius: 14px; }
+  .dial { width: 58px; }
+  .dial .num b { font-size: 17px; }
+  .dial .num small { font-size: 7px; margin-top: 1px; }
+  .screen { left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); bottom: 8px; width: auto; height: 46px; transform: none; grid-template-columns: 1fr; border-radius: 14px; }
+  .apps { flex-direction: row; justify-content: space-around; padding: 5px 6px; border-right: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .js .reveal { opacity: 1; transform: none; transition: none; }
+  .eq.on span { animation: none; height: 60%; }
 }
 </style>
 </head>
@@ -208,10 +291,95 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 34v
   <li><a href="#contact"><span>Destination</span><i></i></a></li>
 </ol>
 
-<div class="hud" id="hud" aria-hidden="true">
-  <div class="side left"><span id="trip">0.0</span> km<small>Trip</small></div>
-  <div class="speed"><span id="speed">0</span><small>km/h</small></div>
-  <div class="side"><span id="next">About</span><small>Next exit</small></div>
+<div class="cockpit" id="cockpit">
+  <svg class="dash" viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="dashFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d0a1a"/><stop offset=".22" stop-color="#06040d"/><stop offset="1" stop-color="#020104"/></linearGradient>
+      <linearGradient id="ambGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5ee7ff"/><stop offset=".5" stop-color="#8b6bff"/><stop offset="1" stop-color="#ff3df2"/></linearGradient>
+      <filter id="glow" x="-10%" y="-200%" width="120%" height="500%"><feGaussianBlur stdDeviation="3"/></filter>
+    </defs>
+    <path d="M0 34 C 220 2, 780 2, 1000 34 L1000 200 L0 200 Z" fill="url(#dashFill)"/>
+    <path d="M0 34 C 220 2, 780 2, 1000 34" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+    <path class="amb" d="M30 46 C 250 18, 750 18, 970 46" fill="none" stroke="url(#ambGrad)" stroke-width="5" filter="url(#glow)" opacity=".8" vector-effect="non-scaling-stroke"/>
+    <path class="amb" d="M30 46 C 250 18, 750 18, 970 46" fill="none" stroke="url(#ambGrad)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+    <path d="M0 150 C 300 132, 700 132, 1000 150" fill="none" stroke="rgba(94,231,255,.10)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+  </svg>
+
+  <div class="cluster" aria-hidden="true">
+    <div class="col">
+      <div class="gears"><span>P</span><span>R</span><span>N</span><span class="on">D</span></div>
+      <div>Trip<b><span id="trip">0.0</span> km</b></div>
+      <div>Drive mode<b id="mode">Comfort</b></div>
+    </div>
+    <div class="dial">
+      <svg viewBox="0 0 100 100"><path class="track" d="M18 78 A 40 40 0 1 1 82 78" pathLength="100"/><path class="fill" id="dialFill" d="M18 78 A 40 40 0 1 1 82 78" pathLength="100" stroke-dasharray="0 100"/></svg>
+      <div class="num"><b id="speed">0</b><small>KM/H</small></div>
+    </div>
+    <div class="col r">
+      <div>Time<b id="clock">--:--</b></div>
+      <div>Next exit<b id="next">About</b></div>
+      <div>Autopilot<b>Off</b></div>
+    </div>
+  </div>
+
+  <div class="yoke" id="yoke" aria-hidden="true">
+    <svg viewBox="0 0 400 210">
+      <defs><linearGradient id="yokeG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1528"/><stop offset="1" stop-color="#07050d"/></linearGradient></defs>
+      <path d="M70 40 Q38 40 38 78 L38 150 Q38 192 84 192 L316 192 Q362 192 362 150 L362 78 Q362 40 330 40" fill="none" stroke="url(#yokeG)" stroke-width="30" stroke-linecap="round"/>
+      <path d="M58 36 Q28 40 26 78 L26 150" fill="none" stroke="rgba(94,231,255,.35)" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M342 36 Q372 40 374 78 L374 150" fill="none" stroke="rgba(255,61,242,.35)" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M52 150 L150 150 M250 150 L348 150" stroke="#0b0914" stroke-width="16" stroke-linecap="round"/>
+      <rect x="140" y="118" width="120" height="66" rx="22" fill="#0b0914" stroke="rgba(94,231,255,.25)"/>
+      <text x="200" y="158" text-anchor="middle" font-family="Michroma, sans-serif" font-size="20" fill="#5ee7ff" style="filter: drop-shadow(0 0 6px #5ee7ff)">GT</text>
+      <circle cx="38" cy="96" r="5" fill="#5ee7ff" opacity=".8"/><circle cx="38" cy="116" r="4" fill="#9a93b8" opacity=".6"/>
+      <circle cx="362" cy="96" r="5" fill="#ff3df2" opacity=".8"/><circle cx="362" cy="116" r="4" fill="#9a93b8" opacity=".6"/>
+    </svg>
+  </div>
+
+  <div class="screen" id="screen">
+    <nav class="apps" aria-label="Car screen apps">
+      <button type="button" data-app="map" aria-pressed="true" aria-label="Route"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4Z"/><path d="M9 4v13M15 6.5v13"/></svg></button>
+      <button type="button" data-app="music" aria-pressed="false" aria-label="Music"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></button>
+      <button type="button" data-app="projects" aria-pressed="false" aria-label="Projects"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
+      <button type="button" data-app="contact" aria-pressed="false" aria-label="Contact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></button>
+      <button type="button" data-app="resume" aria-pressed="false" aria-label="Resume"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></button>
+    </nav>
+    <div class="view" data-view="map">
+      <div class="vhead"><span>Route</span><span>Next · <b id="nextScreen">About</b></span></div>
+      <ul class="stops" id="stops"></ul>
+    </div>
+    <div class="view" data-view="music" hidden>
+      <div class="vhead"><span>Now playing</span><span id="musicState">Paused</span></div>
+      <div class="np">
+        <div class="art"></div>
+        <div><h4>Neon Exit</h4><small>GT synth engine · live</small></div>
+        <button class="play" id="playBtn" type="button" aria-label="Play music"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path id="playIcon" d="M8 5v14l11-7z"/></svg></button>
+      </div>
+      <div class="eq" id="eq"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <p class="fine">Generated live in your browser with the Web Audio API. No audio files.</p>
+    </div>
+    <div class="view" data-view="projects" hidden>
+      <div class="vhead"><span>Projects</span><span>2 builds</span></div>
+      <div class="tiles">
+        <div class="tile"><b>Car Depreciation Analyzer</b><span class="acts"><button class="mini" type="button" data-jump="cars">View</button><a class="mini" href="https://github.com/GregoryTruong/car-depreciation" target="_blank" rel="noopener">Code</a></span></div>
+        <div class="tile"><b>Stock Report Card</b><span class="acts"><button class="mini" type="button" data-jump="stocks">View</button><a class="mini" href="https://stock-report-card.streamlit.app" target="_blank" rel="noopener">Live</a><a class="mini" href="https://github.com/GregoryTruong/stock-report-card" target="_blank" rel="noopener">Code</a></span></div>
+        <div class="tile"><b>Side quests</b><span class="acts"><button class="mini" type="button" data-jump="more">View</button></span></div>
+      </div>
+    </div>
+    <div class="view" data-view="contact" hidden>
+      <div class="vhead"><span>Contact</span><span>Open to co-op</span></div>
+      <div class="tiles">
+        <div class="tile"><b>g2truong@uwaterloo.ca</b><span class="acts"><button class="mini" type="button" id="copyMini">Copy</button></span></div>
+        <div class="tile"><b>LinkedIn · GitHub</b><span class="acts"><a class="mini" href="https://www.linkedin.com/in/g2truong" target="_blank" rel="noopener">LinkedIn</a><a class="mini" href="https://github.com/GregoryTruong" target="_blank" rel="noopener">GitHub</a></span></div>
+      </div>
+    </div>
+    <div class="view" data-view="resume" hidden>
+      <div class="vhead"><span>Resume</span><span>PDF</span></div>
+      <h4>Gregory Truong</h4>
+      <p class="fine">Honours Math co-op, University of Waterloo. Python, SQL, TypeScript, React, pandas, scikit-learn.</p>
+      <div><a class="mini" href="resume.pdf" target="_blank" rel="noopener">Open resume</a></div>
+    </div>
+  </div>
 </div>
 
 <main>
@@ -345,19 +513,52 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 34v
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   const chapters = [...document.querySelectorAll('.chapter')];
   const routeLinks = [...document.querySelectorAll('#route a')];
-  const nextEl = document.getElementById('next'), hud = document.getElementById('hud');
+  const nextEl = document.getElementById('next'), cockpit = document.getElementById('cockpit'), nextScreen = document.getElementById('nextScreen');
   let curIdx = 0, boost = 0, hudTimer;
   function updateRoute() {
     const mid = innerHeight * 0.5;
     let idx = 0;
     chapters.forEach((c, i) => { if (c.getBoundingClientRect().top < mid) idx = i; });
     if (idx !== curIdx) {
-      if (idx > curIdx && !reduce) { boost = 1; hud.classList.add('boost'); clearTimeout(hudTimer); hudTimer = setTimeout(() => hud.classList.remove('boost'), 1400); whoosh(); }
+      if (idx > curIdx && !reduce) { boost = 1; cockpit.classList.add('boost'); clearTimeout(hudTimer); hudTimer = setTimeout(() => cockpit.classList.remove('boost'), 1400); whoosh(); }
       curIdx = idx;
     }
     routeLinks.forEach((a, i) => a.classList.toggle('on', i === idx));
-    nextEl.textContent = chapters[idx + 1] ? chapters[idx + 1].dataset.name : 'Arrived';
+    stopBtns.forEach((b, i) => b.classList.toggle('on', i === idx));
+    const nx = chapters[idx + 1] ? chapters[idx + 1].dataset.name : 'Arrived';
+    if (nextEl.textContent !== nx) { nextEl.textContent = nx; nextScreen.textContent = nx; }
   }
+
+  /* ---------- centre screen ---------- */
+  const jump = id => document.getElementById(id).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+  const stopsEl = document.getElementById('stops');
+  const stopBtns = chapters.map(c => {
+    const li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button'; b.innerHTML = '<i></i>'; b.append(c.dataset.name);
+    b.addEventListener('click', () => jump(c.id)); li.append(b); stopsEl.append(li); return b;
+  });
+  const appBtns = [...document.querySelectorAll('.apps button')], views = [...document.querySelectorAll('.view')];
+  const compact = matchMedia('(max-width: 720px)');
+  appBtns.forEach(b => b.addEventListener('click', () => {
+    const app = b.dataset.app;
+    if (compact.matches) { // phone: the dock does quick actions
+      if (app === 'music') setSound(!soundOn);
+      else if (app === 'resume') window.open('resume.pdf', '_blank', 'noopener') || (location.href = 'resume.pdf');
+      else jump({ map: 'start', projects: 'cars', contact: 'contact' }[app]);
+      return;
+    }
+    appBtns.forEach(x => x.setAttribute('aria-pressed', x === b));
+    views.forEach(v => v.hidden = v.dataset.view !== app);
+  }));
+  document.querySelectorAll('[data-jump]').forEach(b => b.addEventListener('click', () => jump(b.dataset.jump)));
+  document.getElementById('copyMini').addEventListener('click', e => {
+    const btn = e.currentTarget;
+    const ok = () => { btn.textContent = 'Copied'; setTimeout(() => btn.textContent = 'Copy', 1600); };
+    if (navigator.clipboard) navigator.clipboard.writeText('g2truong@uwaterloo.ca').then(ok).catch(() => jump('contact')); else jump('contact');
+  });
+  const clockEl = document.getElementById('clock');
+  const tick = () => { clockEl.textContent = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); };
+  tick(); setInterval(tick, 15000);
 
   /* ---------- copy email ---------- */
   document.getElementById('copyBtn').addEventListener('click', e => {
@@ -425,7 +626,12 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 34v
     if (on && !ac) buildAudio();
     if (ac) { ac.resume(); master.gain.setTargetAtTime(on ? .6 : 0, ac.currentTime, .6); }
     soundBtn.setAttribute('aria-pressed', on); soundBtn.textContent = on ? 'Sound on' : 'Sound off';
+    document.getElementById('eq').classList.toggle('on', on);
+    document.getElementById('musicState').textContent = on ? 'Playing' : 'Paused';
+    document.getElementById('playIcon').setAttribute('d', on ? 'M7 5h4v14H7zM13 5h4v14h-4z' : 'M8 5v14l11-7z');
+    document.getElementById('playBtn').setAttribute('aria-label', on ? 'Pause music' : 'Play music');
   }
+  document.getElementById('playBtn').addEventListener('click', () => setSound(!soundOn));
   soundBtn.addEventListener('click', () => setSound(!soundOn));
   const go = () => document.getElementById('about').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
   document.getElementById('startSound').addEventListener('click', () => { setSound(true); go(); });
@@ -522,6 +728,8 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 34v
 
   let travel = 0, speed = 12, lastY = scrollY, scrollVel = 0, last = performance.now();
   const speedEl = document.getElementById('speed'), tripEl = document.getElementById('trip');
+  const dialFill = document.getElementById('dialFill'), yokeEl = document.getElementById('yoke'), modeEl = document.getElementById('mode');
+  let shownSpeed = -1, shownMode = '';
 
   function frame(now) {
     const dt = Math.min(.05, (now - last) / 1000); last = now;
@@ -672,7 +880,11 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 34v
 
     drawCockpit(now);
 
-    speedEl.textContent = Math.round(speed * 4.2);
+    const kmh = Math.min(320, Math.round(40 + speed * 2.2));
+    if (kmh !== shownSpeed) { shownSpeed = kmh; speedEl.textContent = kmh; dialFill.setAttribute('stroke-dasharray', `${(kmh / 320 * 100).toFixed(1)} 100`); }
+    const mode = boost > .15 ? 'Boost' : kmh > 120 ? 'Sport' : 'Comfort';
+    if (mode !== shownMode) { shownMode = mode; modeEl.textContent = mode; }
+    yokeEl.style.transform = `translateX(-50%) rotate(${(curv * 14).toFixed(2)}deg)`;
     tripEl.textContent = (travel / 400).toFixed(1);
     updateRoute();
     if (ac && soundOn) { const f = 36 + speed * .9; engA.frequency.setTargetAtTime(f, ac.currentTime, .1); engB.frequency.setTargetAtTime(f * 1.015, ac.currentTime, .1); }
@@ -789,49 +1001,18 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 34v
   }
 
   function drawCockpit(now) {
-    const dashTop = H * (phone ? .80 : .76);
+    // A-pillars, roof liner and mirror; the dashboard itself is HTML/SVG below the canvas
     g.fillStyle = '#030208';
-    g.beginPath(); g.moveTo(0, 0); g.lineTo(W * (phone ? .05 : .09), 0); g.lineTo(W * (phone ? .0 : .02), dashTop); g.lineTo(0, dashTop); g.closePath(); g.fill();
-    g.beginPath(); g.moveTo(W, 0); g.lineTo(W * (phone ? .95 : .91), 0); g.lineTo(W * (phone ? 1 : .98), dashTop); g.lineTo(W, dashTop); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(0, 0); g.lineTo(W * (phone ? .05 : .09), 0); g.lineTo(W * (phone ? .0 : .02), H); g.lineTo(0, H); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(W, 0); g.lineTo(W * (phone ? .95 : .91), 0); g.lineTo(W * (phone ? 1 : .98), H); g.lineTo(W, H); g.closePath(); g.fill();
     g.fillRect(0, 0, W, H * .035);
     if (!phone) { g.fillStyle = '#05030b'; const mw = W * .13, mx = W * .5 - mw / 2 + W * .06; roundRect(mx, H * .035, mw, H * .055, 10); g.fill(); g.fillRect(mx + mw / 2 - 2, 0, 4, H * .04); }
-    const dg = g.createLinearGradient(0, dashTop, 0, H);
-    dg.addColorStop(0, '#0b0816'); dg.addColorStop(.25, '#05030b'); dg.addColorStop(1, '#020104');
-    g.fillStyle = dg;
-    g.beginPath(); g.moveTo(0, dashTop + H * .02);
-    g.bezierCurveTo(W * .25, dashTop - H * .03, W * .75, dashTop - H * .03, W, dashTop + H * .02);
-    g.lineTo(W, H); g.lineTo(0, H); g.closePath(); g.fill();
-    // ambient light strip, cyan to magenta
-    const pulse = .75 + .25 * Math.sin(now / 1800) + boost * .4;
-    const sgr = g.createLinearGradient(W * .04, 0, W * .96, 0);
-    sgr.addColorStop(0, hexA('#5ee7ff', Math.min(1, .9 * pulse))); sgr.addColorStop(1, hexA('#ff3df2', Math.min(1, .9 * pulse)));
-    g.strokeStyle = sgr; g.lineWidth = 2; g.shadowColor = boost > .1 ? '#ff3df2' : '#5ee7ff'; g.shadowBlur = 18;
-    g.beginPath(); g.moveTo(W * .04, dashTop + H * .045);
-    g.bezierCurveTo(W * .28, dashTop + H * .005, W * .72, dashTop + H * .005, W * .96, dashTop + H * .045); g.stroke();
-    g.shadowBlur = 0;
-    const rg = g.createLinearGradient(0, dashTop - H * .09, 0, dashTop);
-    rg.addColorStop(0, 'rgba(94,231,255,0)'); rg.addColorStop(1, `rgba(94,231,255,${.07 * Math.min(1, pulse)})`);
-    g.fillStyle = rg; g.fillRect(0, dashTop - H * .09, W, H * .09);
-    if (!phone) {
-      const cx = W * .3, cy = H * 1.06, R = H * .3;
-      g.save(); g.translate(cx, cy); g.rotate(curv * .25); // the wheel turns with the road
-      g.strokeStyle = '#0c0916'; g.lineWidth = H * .035; g.lineCap = 'round';
-      g.beginPath(); g.arc(0, 0, R, Math.PI * 1.12, Math.PI * 1.88); g.stroke();
-      g.strokeStyle = 'rgba(94,231,255,.14)'; g.lineWidth = 1.5;
-      g.beginPath(); g.arc(0, 0, R + H * .017, Math.PI * 1.15, Math.PI * 1.85); g.stroke();
-      g.restore();
-      // centre screen: a mini map of the turns ahead
-      const sx = W * .58, sy = dashTop + H * .07, sw = W * .16, sh = H * .1;
-      g.fillStyle = 'rgba(94,231,255,.05)'; g.strokeStyle = 'rgba(94,231,255,.28)'; g.lineWidth = 1;
-      roundRect(sx, sy, sw, sh, 8); g.fill(); g.stroke();
-      g.strokeStyle = 'rgba(255,61,242,.8)'; g.lineWidth = 2; g.beginPath();
-      for (let i = 0; i <= 30; i++) {
-        const t = travel + i * 12, x = sx + sw / 2 + (Math.sin(t / 110) * .9 + Math.sin(t / 47) * .25) * sw * .3, y = sy + sh - 6 - i / 30 * (sh - 12);
-        i ? g.lineTo(x, y) : g.moveTo(x, y);
-      }
-      g.stroke();
-      g.fillStyle = '#5ee7ff'; g.beginPath(); g.arc(sx + sw / 2 + (Math.sin(travel / 110) * .9 + Math.sin(travel / 47) * .25) * sw * .3, sy + sh - 6, 3, 0, 7); g.fill();
-    }
+    // ambient light reflecting in the lower windshield
+    const dashTop = H - Math.min(270, Math.max(170, H * .3)) * (phone ? .6 : 1);
+    const pulse = Math.min(1, .75 + .25 * Math.sin(now / 1800) + boost * .4);
+    const rg = g.createLinearGradient(0, dashTop - H * .12, 0, dashTop + 10);
+    rg.addColorStop(0, 'rgba(94,231,255,0)'); rg.addColorStop(1, `rgba(${boost > .1 ? '255,61,242' : '94,231,255'},${.09 * pulse})`);
+    g.fillStyle = rg; g.fillRect(0, dashTop - H * .12, W, H * .12 + 10);
     const vg = g.createRadialGradient(W / 2, H * .45, Math.min(W, H) * .3, W / 2, H * .45, Math.max(W, H) * .8);
     vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, `rgba(0,0,0,${.55 + boost * .2})`);
     g.fillStyle = vg; g.fillRect(0, 0, W, H);
