@@ -79,7 +79,7 @@ a { color: var(--ambient); }
 
 /* ---------- route rail (chapters are a real sequence) ---------- */
 .route {
-  position: fixed; right: max(18px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-58%);
+  position: fixed; right: max(18px, env(safe-area-inset-right, 0px), calc(var(--pw) - 40px)); top: 50%; transform: translateY(-58%);
   z-index: 5; display: flex; flex-direction: column; gap: 14px; list-style: none; margin: 0; padding: 0;
 }
 .route::before { content: ""; position: absolute; right: 4px; top: 6px; bottom: 6px; width: 1px; background: var(--line); }
@@ -91,28 +91,46 @@ a { color: var(--ambient); }
 .route a.on i { border-color: var(--ambient); background: var(--ambient); }
 
 /* ---------- cabin: starlight roof, A-pillars ---------- */
-.roof { position: fixed; top: 0; left: 0; right: 0; height: calc(64px + 4vh + env(safe-area-inset-top, 0px)); z-index: 4; pointer-events: none; }
-.roof svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.stars { position: absolute; inset: 0 0 30% 0; overflow: hidden; }
+/* the frame around the glass: headliner with sun visors, A-pillars with a slice of side window and mirror, rear-view mirror */
+:root { --ch: clamp(150px, 25vh, 230px); --hh: calc(70px + 7vh + env(safe-area-inset-top, 0px)); --pw: clamp(14px, calc((100vw - 1080px) / 2 + 4px), 170px); }
+.cabin { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
+.cabin .defs { position: absolute; }
+.roof { position: absolute; top: 0; left: 0; right: 0; height: var(--hh); }
+.roof svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
+.stars { position: absolute; inset: 0 0 34% 0; overflow: hidden; }
+.side { position: absolute; top: 0; bottom: calc(var(--ch) - 38px); width: var(--pw); }
+.side.l { left: 0; } .side.r { right: 0; }
+.side svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.smir { display: none; position: absolute; bottom: 3%; width: 50%; aspect-ratio: 1.55; padding: 5px; background: linear-gradient(#1a1b20, #0b0c0f); border-radius: 46% 40% 34% 44% / 52% 46% 54% 48%; }
+.side.l .smir { left: 5%; } .side.r .smir { right: 5%; border-radius: 40% 46% 44% 34% / 46% 52% 48% 54%; }
+.smir canvas { width: 100%; height: 100%; display: block; border-radius: inherit; filter: brightness(1.15) saturate(.9); }
+@media (min-width: 1280px) { .smir { display: block; } }
+.overhead { position: absolute; top: 0; left: calc(50% + 4vw); transform: translateX(-50%); width: clamp(70px, 8vw, 120px); height: calc(var(--hh) * .3); background: linear-gradient(#0b0c0f, #15161b); border: 1px solid rgba(232,228,220,.08); border-top: 0; border-radius: 0 0 14px 14px; display: flex; justify-content: center; align-items: flex-end; gap: 22%; padding-bottom: 7px; }
+.overhead i { width: 14%; aspect-ratio: 2.2; border-radius: 3px; background: #1c1d22; border: 1px solid rgba(232,228,220,.10); }
+.overhead i:first-child { box-shadow: inset 0 0 0 1px var(--cabin); }
+.mirror { position: absolute; top: calc(var(--hh) * .3 - 2px); left: calc(50% + 4vw); transform: translateX(-50%); width: clamp(96px, 14vw, 220px); aspect-ratio: 3.5; padding-top: 14px; }
+.mirror::before { content: ""; position: absolute; top: 0; left: 50%; width: 8px; height: 18px; margin-left: -4px; background: #121318; border-radius: 0 0 3px 3px; }
+.mirror canvas { position: relative; width: 100%; height: 100%; display: block; border: 2px solid #17181d; border-radius: 10px 10px 26px 26px / 10px 10px 34px 34px; background: #050608; filter: brightness(1.05) saturate(.85) contrast(1.05); }
+.mirror::after { content: ""; position: absolute; inset: 14px 0 0; border-radius: 10px 10px 26px 26px / 10px 10px 34px 34px; background: linear-gradient(165deg, rgba(255,255,255,.07), rgba(255,255,255,0) 38%); }
 .stars i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #f2efe6; }
 .stars i.c { background: var(--cabin); }
 .stars i.tw { animation: tw var(--d, 5s) ease-in-out infinite; animation-delay: var(--dl, 0s); }
 .stars .shoot { position: absolute; top: 18%; left: 0; width: 70px; height: 1px; background: #f2efe6; opacity: 0; animation: shoot 16s linear infinite 4s; }
 @keyframes tw { 50% { opacity: .12; } }
 @keyframes shoot { 0% { opacity: 0; transform: translate(10vw, 0) rotate(-8deg); } 1% { opacity: .7; } 4% { opacity: 0; transform: translate(34vw, 28px) rotate(-8deg); } 100% { opacity: 0; } }
-.pillar { position: fixed; top: 0; bottom: calc(clamp(150px, 25vh, 230px) - 40px); width: clamp(34px, 4.6vw, 72px); z-index: 4; pointer-events: none; background: #060708; }
-@media (max-width: 1199px) { .pillar { display: none; } }
-.pillar.l { left: 0; clip-path: polygon(0 0, 100% 0, 22% 100%, 0 100%); }
-.pillar.r { right: 0; clip-path: polygon(0 0, 100% 0, 100% 100%, 78% 100%); }
 
 /* ---------- cockpit: dash, yoke, cluster, centre screen ---------- */
 .cockpit {
-  --ch: clamp(150px, 25vh, 230px);
-  --cw: min(clamp(260px, 27vw, 400px), calc(var(--ch) * 1.6));
+  --cw: min(clamp(300px, 30vw, 440px), calc(var(--ch) * 1.95));
   position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--ch) + env(safe-area-inset-bottom, 0px));
   z-index: 3; pointer-events: none; font-family: var(--f-mono);
 }
-.cockpit .dash { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.cockpit .dash { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
+.aclock { position: absolute; bottom: 30%; right: calc(9% + clamp(320px, 33vw, 500px) + 24px); width: clamp(50px, 4.4vw, 64px); aspect-ratio: 1; z-index: 1; }
+.aclock svg { width: 100%; height: 100%; display: block; }
+.aclock .hand { stroke: #e8e4dc; stroke-linecap: round; }
+.aclock .sec { stroke: var(--cabin); transition: stroke .4s; }
+@media (max-width: 1199px) { .aclock { display: none; } }
 .cockpit .leather { fill: var(--trim); transition: fill .4s; }
 .cockpit .amb { stroke: var(--cabin); transition: stroke .4s; }
 .cockpit .wash { stroke: var(--cabin); stroke-opacity: .14; transition: stroke .4s; }
@@ -332,7 +350,7 @@ html.driving { overflow: hidden; }
 .driving main, .driving footer, .driving .screen, .driving .keys { visibility: hidden; }
 .driving .route, .driving .mono-badge { display: none; }
 .game { position: fixed; inset: 0; z-index: 6; pointer-events: none; }
-.ghud { position: absolute; top: calc(64px + 4vh); left: 50%; transform: translateX(-50%); display: flex; gap: 22px; align-items: center; padding: 8px 10px 8px 18px;
+.ghud { position: absolute; top: calc(var(--hh) + 52px); left: 50%; transform: translateX(-50%); display: flex; gap: 22px; align-items: center; padding: 8px 10px 8px 18px;
   background: var(--glass); border: 1px solid var(--line); border-radius: 4px; pointer-events: auto; font: 500 11px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fog); white-space: nowrap; }
 .ghud b { display: block; color: var(--ink); font-size: 15px; letter-spacing: 0; text-transform: none; margin-top: 3px; font-variant-numeric: tabular-nums; }
 .ghud .btn { padding: 8px 12px; font-size: 12px; }
@@ -345,16 +363,16 @@ html.driving { overflow: hidden; }
 .calm .gpop { animation-name: gpopCalm; }
 @media (prefers-reduced-motion: reduce) { .gpop { animation-name: gpopCalm; } }
 @keyframes gpopCalm { 0%, 75% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, 0); } }
-.ghelp { position: absolute; top: calc(64px + 4vh + 70px); left: 0; right: 0; margin: 0; max-width: none; text-align: center; font: 500 13px/1.4 var(--f-mono); color: var(--ink); transition: opacity .6s; padding-inline: 16px; }
+.ghelp { position: absolute; top: calc(var(--hh) + 122px); left: 0; right: 0; margin: 0; max-width: none; text-align: center; font: 500 13px/1.4 var(--f-mono); color: var(--ink); transition: opacity .6s; padding-inline: 16px; }
 .ghelp .tc { display: none; }
 @media (max-width: 380px) { .ghud .gdist { display: none; } }
 @media (hover: none) { .ghelp .kb { display: none; } .ghelp .tc { display: inline; } }
 .ghelp.gone { opacity: 0; }
 @media (max-width: 800px) {
-  .ghud { top: calc(58px + 2vh); gap: 12px; padding: 6px 6px 6px 12px; font-size: 9px; }
+  .ghud { top: calc(var(--hh) + 30px); gap: 12px; padding: 6px 6px 6px 12px; font-size: 9px; }
   .ghud b { font-size: 13px; }
   .gscore b { font-size: 17px; }
-  .ghelp { top: calc(58px + 2vh + 62px); font-size: 12px; }
+  .ghelp { top: calc(var(--hh) + 92px); font-size: 12px; }
   .driving .cockpit .screen { visibility: hidden; }
 }
 .eqs { margin: 4px 0 0; display: grid; }
@@ -378,7 +396,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 
 @media (max-height: 880px) and (min-width: 801px) {
   .yoke { bottom: -60%; }
-  .roof { height: calc(60px + 3vh); }
+  :root { --hh: calc(64px + 5vh + env(safe-area-inset-top, 0px)); }
   .cluster { padding: 8px 12px; }
   .cluster .col { gap: 4px; font-size: 9px; }
   .cluster .col b { font-size: 12px; }
@@ -389,9 +407,12 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   .cluster { grid-template-columns: minmax(0, 1fr) auto; }
 }
 @media (max-width: 800px) {
-  .cockpit { --ch: 132px; }
-  .yoke, .cluster .col, .view, .vent, .keys, .pillar { display: none; }
-  .roof { height: calc(58px + 2vh + env(safe-area-inset-top, 0px)); }
+  :root { --ch: 132px; --hh: calc(58px + 3vh + env(safe-area-inset-top, 0px)); }
+  .yoke, .cluster .col, .view, .vent, .keys, .aclock, .tweeter { display: none; }
+  .visors path:not(.amb) { display: none; }
+  .overhead { display: none; }
+  .mirror { left: 50%; top: calc(env(safe-area-inset-top, 0px) + 30px); width: 88px; aspect-ratio: auto; height: 42px; }
+  .mirror::before { top: -30px; height: 46px; }
   .cluster { left: 50%; transform: translateX(-50%); width: auto; bottom: 62px; height: 66px; padding: 4px 14px; grid-template-columns: auto; border-radius: 4px; }
   .dial { width: 58px; }
   .dial .num b { font-size: 17px; }
@@ -416,14 +437,56 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 <body>
 <canvas id="scene" aria-hidden="true"></canvas>
 
-<div class="roof" aria-hidden="true">
-  <svg viewBox="0 0 1000 100" preserveAspectRatio="none">
-    <path d="M0 0 H1000 V96 C 800 66, 200 66, 0 96 Z" fill="#050607"/>
-    <path d="M0 96 C 200 66, 800 66, 1000 96" fill="none" stroke="rgba(232,228,220,.10)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<div class="cabin" aria-hidden="true">
+  <svg class="defs" width="0" height="0">
+    <defs>
+      <linearGradient id="fabric" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#08090b"/><stop offset=".7" stop-color="#0c0d11"/><stop offset="1" stop-color="#15161b"/></linearGradient>
+      <linearGradient id="visorFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e0f13"/><stop offset="1" stop-color="#1a1b21"/></linearGradient>
+      <linearGradient id="pillarL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#050608"/><stop offset=".55" stop-color="#0c0d10"/><stop offset="1" stop-color="#17181d"/></linearGradient>
+      <linearGradient id="pillarR" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#060709"/><stop offset=".6" stop-color="#0d0e12"/><stop offset="1" stop-color="#16171c"/></linearGradient>
+      <linearGradient id="glassL" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".55" stop-color="#fff" stop-opacity=".035"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <linearGradient id="glassR" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".55" stop-color="#fff" stop-opacity=".03"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    </defs>
   </svg>
-  <div class="stars" id="stars"><span class="shoot"></span></div>
+  <div class="side l">
+    <div class="smir"><canvas class="mir" data-src="l"></canvas></div>
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+      <path d="M0 0 H6 V100 H0 Z" fill="#060709"/>
+      <path d="M6 0 H72 L40 100 H6 Z" fill="rgba(6,9,14,.42)"/>
+      <path d="M6 0 H72 L40 100 H6 Z" fill="url(#glassL)"/>
+      <path d="M70 0 H100 L74 100 H38 Z" fill="url(#pillarL)"/>
+      <path d="M100 0 L74 100" stroke="rgba(232,228,220,.16)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <path class="amb" d="M97.6 0 L71.6 100" stroke-width="1.5" stroke-opacity=".5" vector-effect="non-scaling-stroke"/>
+      <path d="M70 0 L38 100" stroke="rgba(0,0,0,.6)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+    </svg>
+  </div>
+  <div class="side r">
+    <div class="smir"><canvas class="mir" data-src="r"></canvas></div>
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+      <path d="M94 0 H100 V100 H94 Z" fill="#060709"/>
+      <path d="M20 0 H94 V100 H52 Z" fill="rgba(6,9,14,.42)"/>
+      <path d="M20 0 H94 V100 H52 Z" fill="url(#glassR)"/>
+      <path d="M0 0 H22 L54 100 H34 Z" fill="url(#pillarR)"/>
+      <path d="M0 0 L34 100" stroke="rgba(232,228,220,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <path class="amb" d="M2 0 L35.6 100" stroke-width="1.2" stroke-opacity=".4" vector-effect="non-scaling-stroke"/>
+    </svg>
+  </div>
+  <div class="roof">
+    <svg viewBox="0 0 1000 100" preserveAspectRatio="none">
+      <path d="M0 0 H1000 V100 C 820 62, 180 62, 0 100 Z" fill="url(#fabric)"/>
+      <path d="M0 100 C 180 62, 820 62, 1000 100" fill="none" stroke="#1b1c22" stroke-width="5" vector-effect="non-scaling-stroke"/>
+      <path d="M0 100 C 180 62, 820 62, 1000 100" fill="none" stroke="rgba(232,228,220,.13)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+    </svg>
+    <div class="stars" id="stars"><span class="shoot"></span></div>
+    <svg class="visors" viewBox="0 0 1000 100" preserveAspectRatio="none">
+      <path class="amb" d="M0 96.5 C 180 58.5, 820 58.5, 1000 96.5" fill="none" stroke-width="1.2" stroke-opacity=".35" vector-effect="non-scaling-stroke"/>
+      <path d="M150.0 79.2 L174.2 77.5 198.3 76.1 222.5 74.8 246.7 73.7 270.8 72.7 295.0 71.8 319.2 71.0 343.3 70.4 367.5 69.8 391.7 69.4 415.8 69.0 440.0 68.8 Q442.0 83.8 430.0 86.9 L407.5 87.2 385.0 87.5 362.5 88.0 340.0 88.5 317.5 89.1 295.0 89.8 272.5 90.6 250.0 91.5 227.5 92.6 205.0 93.7 182.5 95.0 160.0 96.5 Q148.0 94.2 150.0 79.2 Z" fill="url(#visorFill)"/><path d="M164.0 91.2 L185.8 89.8 207.7 88.6 229.5 87.5 251.3 86.5 273.2 85.6 295.0 84.8 316.8 84.1 338.7 83.5 360.5 83.0 382.3 82.6 404.2 82.2 426.0 81.9" fill="none" stroke="rgba(236,214,186,.16)" stroke-width="1" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/><path d="M410.0 71.1 L422.0 71.1 L422.0 80.1 L410.0 80.1 Z" fill="#191a1f"/>
+      <path d="M650.0 70.2 L669.2 70.7 688.3 71.3 707.5 71.9 726.7 72.6 745.8 73.4 765.0 74.2 784.2 75.2 803.3 76.2 822.5 77.3 841.7 78.6 860.8 80.0 880.0 81.5 Q882.0 96.5 870.0 98.7 L852.5 97.4 835.0 96.1 817.5 95.0 800.0 94.0 782.5 93.1 765.0 92.2 747.5 91.4 730.0 90.7 712.5 90.1 695.0 89.5 677.5 89.0 660.0 88.5 Q648.0 85.2 650.0 70.2 Z" fill="url(#visorFill)"/><path d="M664.0 83.6 L680.8 84.0 697.7 84.6 714.5 85.1 731.3 85.8 748.2 86.5 765.0 87.2 781.8 88.0 798.7 88.9 815.5 89.9 832.3 91.0 849.2 92.1 866.0 93.4" fill="none" stroke="rgba(236,214,186,.16)" stroke-width="1" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/><path d="M668.0 72.7 L680.0 72.7 L680.0 81.7 L668.0 81.7 Z" fill="#191a1f"/>
+    </svg>
+  </div>
+  <div class="overhead"><i></i><i></i></div>
+  <div class="mirror"><canvas class="mir" data-src="rear"></canvas></div>
 </div>
-<div class="pillar l" aria-hidden="true"></div><div class="pillar r" aria-hidden="true"></div>
 
 <header class="topbar">
   <a class="mono-badge" href="#start">G · TRUONG</a>
@@ -629,15 +692,37 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 
 <div class="cockpit" id="cockpit">
   <svg class="dash" viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true">
+    <g class="wipers">
+      <path d="M300 14 L250 2 M720 13 L770 3" stroke="#050506" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+      <path d="M70 26 C 190 11, 330 4, 476 3" fill="none" stroke="#030304" stroke-width="6" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+      <path d="M72 24 C 192 9, 332 2, 474 1" fill="none" stroke="rgba(232,228,220,.12)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <path d="M522 4 C 660 4, 800 10, 912 24" fill="none" stroke="#030304" stroke-width="6" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+      <path d="M524 2 C 662 2, 802 8, 910 22" fill="none" stroke="rgba(232,228,220,.10)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+    </g>
     <defs>
       <linearGradient id="dashFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#121417"/><stop offset=".22" stop-color="#0a0b0d"/><stop offset="1" stop-color="#020104"/></linearGradient>
           </defs>
     <path d="M0 34 C 220 2, 780 2, 1000 34 L1000 200 L0 200 Z" fill="url(#dashFill)"/>
     <path d="M0 34 C 220 2, 780 2, 1000 34" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+    <path d="M40 34 C 240 8, 760 8, 960 34" fill="none" stroke="#000" stroke-opacity=".7" stroke-width="3" stroke-dasharray="16 5" vector-effect="non-scaling-stroke"/>
+    <path d="M40 36 C 240 10, 760 10, 960 36" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+    <g class="tweeter" fill="none" stroke="rgba(232,228,220,.12)" vector-effect="non-scaling-stroke">
+      <ellipse cx="106" cy="52" rx="34" ry="8" fill="#0b0c0e" stroke="rgba(232,228,220,.16)" vector-effect="non-scaling-stroke"/><ellipse cx="106" cy="52" rx="26" ry="6" vector-effect="non-scaling-stroke"/><ellipse cx="106" cy="52" rx="18" ry="4.2" vector-effect="non-scaling-stroke"/><ellipse cx="106" cy="52" rx="10" ry="2.4" vector-effect="non-scaling-stroke"/>
+      <ellipse cx="894" cy="52" rx="34" ry="8" fill="#0b0c0e" stroke="rgba(232,228,220,.16)" vector-effect="non-scaling-stroke"/><ellipse cx="894" cy="52" rx="26" ry="6" vector-effect="non-scaling-stroke"/><ellipse cx="894" cy="52" rx="18" ry="4.2" vector-effect="non-scaling-stroke"/><ellipse cx="894" cy="52" rx="10" ry="2.4" vector-effect="non-scaling-stroke"/>
+    </g>
     <linearGradient id="leatherShade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".15"/><stop offset="1" stop-color="#000" stop-opacity=".75"/></linearGradient>
     <path class="leather" d="M0 92 C 300 70, 700 70, 1000 92 L1000 200 L0 200 Z"/>
     <path d="M0 92 C 300 70, 700 70, 1000 92 L1000 200 L0 200 Z" fill="url(#leatherShade)"/>
     <path d="M0 101 C 300 79, 700 79, 1000 101" fill="none" stroke="rgba(236,214,186,.30)" stroke-width="1" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1c110a"/><stop offset=".18" stop-color="#2b1a0f"/><stop offset=".4" stop-color="#1f130b"/><stop offset=".63" stop-color="#2d1b10"/><stop offset=".85" stop-color="#1d120a"/><stop offset="1" stop-color="#28180e"/></linearGradient>
+    <path d="M0 113 C 300 91, 700 91, 1000 113 L1000 131 C 700 109, 300 109, 0 131 Z" fill="url(#wood)"/>
+    <g fill="none" stroke-width="1" vector-effect="non-scaling-stroke">
+      <path d="M0 117 C 260 96, 640 92, 1000 116" stroke="rgba(0,0,0,.35)" vector-effect="non-scaling-stroke"/>
+      <path d="M0 123 C 340 101, 720 99, 1000 124" stroke="rgba(255,214,170,.05)" vector-effect="non-scaling-stroke"/>
+      <path d="M0 127 C 280 106, 610 103, 1000 128" stroke="rgba(0,0,0,.3)" vector-effect="non-scaling-stroke"/>
+      <path d="M0 112 C 300 90, 700 90, 1000 112" stroke="rgba(214,216,222,.30)" vector-effect="non-scaling-stroke"/>
+      <path d="M0 132 C 300 110, 700 110, 1000 132" stroke="rgba(214,216,222,.22)" vector-effect="non-scaling-stroke"/>
+    </g>
     <path d="M0 146 C 300 126, 700 126, 1000 146" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="1" vector-effect="non-scaling-stroke"/>
     <path d="M0 150 C 300 130, 700 130, 1000 150" fill="none" stroke="rgba(236,214,186,.18)" stroke-width="1" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/>
     <path class="wash" d="M0 95 C 300 73, 700 73, 1000 95" fill="none" stroke-width="10" vector-effect="non-scaling-stroke"/>
@@ -646,6 +731,19 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 
   <div class="vent l" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#08090b" stroke="#24262a" stroke-width="3"/><circle class="ring" cx="50" cy="50" r="40"/><g stroke="#2c2e33" stroke-width="3" stroke-linecap="round"><path d="M50 50 L50 14" transform="rotate(0 50 50)"/><path d="M50 50 L50 14" transform="rotate(30 50 50)"/><path d="M50 50 L50 14" transform="rotate(60 50 50)"/><path d="M50 50 L50 14" transform="rotate(90 50 50)"/><path d="M50 50 L50 14" transform="rotate(120 50 50)"/><path d="M50 50 L50 14" transform="rotate(150 50 50)"/><path d="M50 50 L50 14" transform="rotate(180 50 50)"/><path d="M50 50 L50 14" transform="rotate(210 50 50)"/><path d="M50 50 L50 14" transform="rotate(240 50 50)"/><path d="M50 50 L50 14" transform="rotate(270 50 50)"/><path d="M50 50 L50 14" transform="rotate(300 50 50)"/><path d="M50 50 L50 14" transform="rotate(330 50 50)"/></g><circle cx="50" cy="50" r="11" fill="#141518" stroke="#2c2e33" stroke-width="2"/></svg></div>
   <div class="vent r" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#08090b" stroke="#24262a" stroke-width="3"/><circle class="ring" cx="50" cy="50" r="40"/><g stroke="#2c2e33" stroke-width="3" stroke-linecap="round"><path d="M50 50 L50 14" transform="rotate(0 50 50)"/><path d="M50 50 L50 14" transform="rotate(30 50 50)"/><path d="M50 50 L50 14" transform="rotate(60 50 50)"/><path d="M50 50 L50 14" transform="rotate(90 50 50)"/><path d="M50 50 L50 14" transform="rotate(120 50 50)"/><path d="M50 50 L50 14" transform="rotate(150 50 50)"/><path d="M50 50 L50 14" transform="rotate(180 50 50)"/><path d="M50 50 L50 14" transform="rotate(210 50 50)"/><path d="M50 50 L50 14" transform="rotate(240 50 50)"/><path d="M50 50 L50 14" transform="rotate(270 50 50)"/><path d="M50 50 L50 14" transform="rotate(300 50 50)"/><path d="M50 50 L50 14" transform="rotate(330 50 50)"/></g><circle cx="50" cy="50" r="11" fill="#141518" stroke="#2c2e33" stroke-width="2"/></svg></div>
+
+  <div class="aclock" aria-hidden="true">
+    <svg viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="48" fill="#17181c" stroke="rgba(214,216,222,.45)" stroke-width="2"/>
+      <circle cx="50" cy="50" r="43" fill="#08090b"/>
+      <g stroke="rgba(232,228,220,.55)" stroke-width="2.5"><path d="M50 10 V18 M90 50 H82 M50 90 V82 M10 50 H18"/></g>
+      <g stroke="rgba(232,228,220,.25)" stroke-width="1.2"><path d="M70 15.4 L67.5 19.7 M84.6 30 L80.3 32.5 M84.6 70 L80.3 67.5 M70 84.6 L67.5 80.3 M30 84.6 L32.5 80.3 M15.4 70 L19.7 67.5 M15.4 30 L19.7 32.5 M30 15.4 L32.5 19.7"/></g>
+      <line class="hand" id="hHand" x1="50" y1="54" x2="50" y2="28" stroke-width="3.5"/>
+      <line class="hand" id="mHand" x1="50" y1="56" x2="50" y2="16" stroke-width="2.2"/>
+      <line class="hand sec" id="sHand" x1="50" y1="60" x2="50" y2="14" stroke-width="1"/>
+      <circle cx="50" cy="50" r="3" fill="#e8e4dc"/>
+    </svg>
+  </div>
 
   <div class="cluster" aria-hidden="true">
     <div class="col">
@@ -872,7 +970,12 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   });
   const clockEl = document.getElementById('clock');
   const tick = () => { clockEl.textContent = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); };
-  tick(); setInterval(tick, 15000);
+  const hands = ['hHand', 'mHand', 'sHand'].map(id => document.getElementById(id));
+  const analog = () => {
+    const d = new Date(), sec = d.getSeconds(), min = d.getMinutes() + sec / 60, hr = d.getHours() % 12 + min / 60;
+    [hr * 30, min * 6, sec * 6].forEach((a, i) => hands[i].setAttribute('transform', `rotate(${a.toFixed(1)} 50 50)`));
+  };
+  tick(); analog(); setInterval(tick, 15000); setInterval(analog, 1000);
 
   /* ---------- copy email ---------- */
   document.getElementById('copyBtn').addEventListener('click', e => {
@@ -1351,6 +1454,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     g.stroke();
 
     drawCockpit(now);
+    drawMirrors();
     if (game.flash > 0 && !reduce) { g.fillStyle = `rgba(242,239,230,${.35 * game.flash})`; g.fillRect(0, 0, W, H); }
     const heroDim = game.on ? 0 : Math.max(0, 1 - scrollY / (innerHeight * .8));
     if (heroDim > 0) { g.fillStyle = `rgba(5,6,7,${.45 * heroDim})`; g.fillRect(0, 0, W, H); }
@@ -1525,13 +1629,25 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     g.fillStyle = sg; g.fillRect(L[0] - r, base[1], R[0] - L[0] + r * 2, r * 14);
   }
 
+  const mirrors = [...document.querySelectorAll('canvas.mir')].map(c => ({ c, x: c.getContext('2d'), src: c.dataset.src }));
+  let mirN = 0;
+  function drawMirrors() { // the mirrors show the street flipped, a little behind the live view
+    if (++mirN % 2) return;
+    for (const m of mirrors) {
+      const w = m.c.clientWidth, h = m.c.clientHeight;
+      if (!w || !h) continue;
+      if (m.c.width !== w || m.c.height !== h) { m.c.width = w; m.c.height = h; }
+      const sw = cv.width * (m.src === 'rear' ? .42 : .2), sh = Math.min(cv.height * .5, sw * h / w);
+      const sx = m.src === 'rear' ? (cv.width - sw) / 2 : m.src === 'l' ? cv.width * .04 : cv.width * .76;
+      const sy = horizon * DPR - sh * .45;
+      m.x.setTransform(-1, 0, 0, 1, w, 0); m.x.drawImage(cv, sx, sy, sw, sh, 0, 0, w, h);
+    }
+  }
   function drawCockpit(now) {
-    // A-pillars, roof liner and mirror; the dashboard itself is HTML/SVG below the canvas
-    g.fillStyle = '#030208';
-    g.beginPath(); g.moveTo(0, 0); g.lineTo(W * (phone ? .05 : .09), 0); g.lineTo(W * (phone ? .0 : .02), H); g.lineTo(0, H); g.closePath(); g.fill();
-    g.beginPath(); g.moveTo(W, 0); g.lineTo(W * (phone ? .95 : .91), 0); g.lineTo(W * (phone ? 1 : .98), H); g.lineTo(W, H); g.closePath(); g.fill();
-    g.fillRect(0, 0, W, H * .035);
-    if (!phone) { g.fillStyle = '#05030b'; const mw = W * .13, mx = W * .5 - mw / 2 + W * .06; roundRect(mx, H * .035, mw, H * .055, 10); g.fill(); g.fillRect(mx + mw / 2 - 2, 0, 4, H * .04); }
+    // the cabin frame (headliner, pillars, mirrors, dash) is HTML/SVG on top; here only what happens on the glass
+    const band = g.createLinearGradient(0, 0, 0, H * .3); // tinted shade band at the top of the windshield
+    band.addColorStop(0, 'rgba(8,14,28,.55)'); band.addColorStop(1, 'rgba(8,14,28,0)');
+    g.fillStyle = band; g.fillRect(0, 0, W, H * .3);
     // ambient light reflecting in the lower windshield
     const dashTop = H - Math.min(270, Math.max(170, H * .3)) * (phone ? .6 : 1);
     const pulse = Math.min(1, .75 + .25 * Math.sin(now / 1800) + boost * .4);
