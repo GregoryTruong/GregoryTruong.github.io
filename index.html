@@ -9,7 +9,7 @@
 <title>Gregory Truong</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 html, body { margin: 0; } img { max-width: 100%; } [hidden] { display: none !important; }
 /* Layout: a fixed canvas windshield on a rainy night city highway; scroll = distance driven; each chapter is an exit.
@@ -30,7 +30,6 @@ html, body { margin: 0; } img { max-width: 100%; } [hidden] { display: none !imp
   --f-body: "Barlow", "Segoe UI", system-ui, sans-serif;
   --f-cond: "Barlow Condensed", "Arial Narrow", sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
-  --f-cjk: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -216,7 +215,7 @@ main { position: relative; z-index: 2; }
 }
 .sign .exit { grid-column: 1; font: 600 12px/1 var(--f-cond); letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
 .sign .to { grid-column: 1; font: 600 clamp(20px, 2.8vw, 28px)/1.1 var(--f-cond); letter-spacing: .01em; }
-.sign .cn { grid-column: 2; grid-row: 1 / span 2; font: 700 clamp(22px, 3.2vw, 32px)/1 var(--f-cjk); opacity: .9; }
+.sign .cn { grid-column: 2; grid-row: 1 / span 2; align-self: end; font: 600 clamp(15px, 1.9vw, 20px)/1.1 var(--f-cond); opacity: .8; padding-left: 14px; border-left: 1px solid rgba(242,239,232,.35); }
 
 h1, h2 { font-family: var(--f-display); font-weight: 400; text-wrap: balance; margin: 0; letter-spacing: .04em; }
 h2 { font-size: clamp(22px, 3.4vw, 34px); line-height: 1.25; }
@@ -317,10 +316,6 @@ html.driving { overflow: hidden; }
 .ghelp .tc { display: none; }
 @media (hover: none) { .ghelp .kb { display: none; } .ghelp .tc { display: inline; } }
 .ghelp.gone { opacity: 0; }
-.gover { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); width: min(440px, calc(100% - 32px)); pointer-events: auto;
-  background: var(--glass); border: 1px solid var(--line); border-radius: 4px; padding: 22px 24px; display: grid; gap: 10px; }
-.gover h2 { margin: 0; font: 400 24px/1.2 var(--f-display); }
-.gover p { margin: 0; color: var(--fog); }
 @media (max-width: 800px) {
   .ghud { top: calc(58px + 2vh); gap: 12px; padding: 6px 6px 6px 12px; font-size: 9px; }
   .ghud b { font-size: 13px; }
@@ -382,7 +377,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 <div class="pillar l" aria-hidden="true"></div><div class="pillar r" aria-hidden="true"></div>
 
 <header class="topbar">
-  <a class="mono-badge" href="#start">G · TRUONG<span>极速</span></a>
+  <a class="mono-badge" href="#start">G · TRUONG</a>
   <span class="tb-btns"><button class="sound-btn" id="motionBtn" type="button" aria-pressed="true">Motion on</button><button class="sound-btn" id="soundBtn" type="button" aria-pressed="false">Sound off</button></span>
 </header>
 
@@ -496,7 +491,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
       </div>
     </div>
     <div class="view" data-view="contact" hidden>
-      <div class="vhead"><span>Contact</span><span>Open to co-op</span></div>
+      <div class="vhead"><span>Contact</span><span>Say hi</span></div>
       <div class="tiles">
         <div class="tile"><b>g2truong@uwaterloo.ca</b><span class="acts"><button class="mini" type="button" id="copyMini">Copy</button></span></div>
         <div class="tile"><b>LinkedIn · GitHub</b><span class="acts"><a class="mini" href="https://www.linkedin.com/in/g2truong" target="_blank" rel="noopener">LinkedIn</a><a class="mini" href="https://github.com/GregoryTruong" target="_blank" rel="noopener">GitHub</a></span></div>
@@ -522,25 +517,25 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
         <button class="btn ghost" id="startQuiet" type="button">Drive without sound</button>
       </div>
       <p class="quick"><a href="resume.pdf" target="_blank" rel="noopener">Resume (PDF)</a><a href="#cars">Projects</a><a href="https://stock-report-card.streamlit.app" target="_blank" rel="noopener">Live demo</a><a href="#contact">Contact</a></p>
-      <p class="status">Open to co-op roles, January to August 2027</p>
+      <p class="status">Incoming QA Analyst co-op at the Ontario Public Service, January to August 2027</p>
       <div class="scroll-hint">Or scroll to drive</div>
     </div>
   </section>
 
   <section class="chapter" id="about" data-name="About">
     <div class="inner">
-      <div class="sign reveal"><span class="exit">Exit 1</span><span class="to">About Greg</span><span class="cn">关于</span></div>
+      <div class="sign reveal"><span class="exit">Exit 1</span><span class="to">About Greg</span><span class="cn">Giới thiệu</span></div>
       <div class="panel stack reveal">
         <h2>Hey, I'm Greg.</h2>
         <p>I study Honours Mathematics in the co-op program at the University of Waterloo. I like problems where the answer is hiding in a pile of numbers, and I like building the thing that pulls it out.</p>
-        <p>My first co-op term runs <strong>January to August 2027</strong>. I want to spend it writing real code on a team that ships.</p>
+        <p>From <strong>January to August 2027</strong> I'm a Quality Assurance Analyst co-op with GovTechON at the <strong>Ontario Public Service</strong>, in the I&amp;IT Enterprise Solutions Division in Toronto. It's my first co-op: two back-to-back terms testing the software behind provincial government services.</p>
       </div>
     </div>
   </section>
 
   <section class="chapter right" id="drives" data-name="What drives me">
     <div class="inner">
-      <div class="sign reveal"><span class="exit">Exit 2</span><span class="to">What drives me</span><span class="cn">动力</span></div>
+      <div class="sign reveal"><span class="exit">Exit 2</span><span class="to">What drives me</span><span class="cn">Động lực</span></div>
       <div class="gauges reveal">
         <div class="gauge"><span class="eyebrow">Math</span><h3>The engine</h3><p>Linear algebra and stats are what make the models in my projects work.</p></div>
         <div class="gauge"><span class="eyebrow">Cars</span><h3>The obsession</h3><p>Late drives, nice interiors, fast imports. It's why I built a depreciation model.</p></div>
@@ -553,7 +548,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 
   <section class="chapter" id="cars" data-name="Car project">
     <div class="inner">
-      <div class="sign reveal"><span class="exit">Exit 3</span><span class="to">Car Depreciation Analyzer</span><span class="cn">汽车</span></div>
+      <div class="sign reveal"><span class="exit">Exit 3</span><span class="to">Car Depreciation Analyzer</span><span class="cn">Ô tô</span></div>
       <div class="panel console stack reveal">
         <div class="bar"><span class="eyebrow">Project · Machine learning</span><span class="stack-tags">Python · pandas · scikit-learn · matplotlib · pytest</span></div>
         <h2>When should you actually buy that car?</h2>
@@ -608,7 +603,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 
   <section class="chapter right" id="stocks" data-name="Stock project">
     <div class="inner">
-      <div class="sign reveal"><span class="exit">Exit 4</span><span class="to">Stock Report Card</span><span class="cn">股票</span></div>
+      <div class="sign reveal"><span class="exit">Exit 4</span><span class="to">Stock Report Card</span><span class="cn">Chứng khoán</span></div>
       <div class="panel console stack reveal">
         <div class="bar"><span class="eyebrow">Project · Finance dashboard</span><span class="stack-tags">Python · pandas · NumPy · Streamlit · Plotly · yfinance</span></div>
         <h2>Every public stock gets a report card.</h2>
@@ -631,11 +626,10 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 
   <section class="chapter" id="more" data-name="Side quests">
     <div class="inner">
-      <div class="sign reveal"><span class="exit">Exit 5</span><span class="to">Side quests</span><span class="cn">支线</span></div>
+      <div class="sign reveal"><span class="exit">Exit 5</span><span class="to">Side quests</span><span class="cn">Việc phụ</span></div>
       <div class="panel stack reveal">
         <h2>Things I've built along the way</h2>
         <ul class="quests">
-          <li><span class="pill live">Live</span><h3>King Pizza and Wings website</h3><p>Pitched the owner on a site to take direct orders and cut delivery-app commissions, then helped build it. It's live and taking orders.</p></li>
           <li><span class="pill">Building</span><h3>UWVSA official website</h3><p>Building the Vietnamese Student Association's site with the exec team.</p></li>
           <li><span class="pill">Shipped</span><h3>Gamemaster</h3><p>A challenge game for 60+ association members, plus the scheduling polls and forms behind our events.</p></li>
         </ul>
@@ -645,7 +639,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 
   <section class="chapter right" id="toolkit" data-name="Toolkit">
     <div class="inner">
-      <div class="sign reveal"><span class="exit">Exit 6</span><span class="to">Toolkit</span><span class="cn">工具</span></div>
+      <div class="sign reveal"><span class="exit">Exit 6</span><span class="to">Toolkit</span><span class="cn">Công cụ</span></div>
       <div class="panel kit reveal">
         <div><span class="eyebrow">Languages</span><div class="chips"><span>Python</span><span>SQL</span><span>TypeScript</span><span>JavaScript</span><span>Java</span><span>C</span><span>C++</span><span>HTML/CSS</span></div></div>
         <div><span class="eyebrow">Frameworks &amp; libraries</span><div class="chips"><span>React</span><span>Node.js</span><span>.NET</span><span>pandas</span><span>NumPy</span><span>scikit-learn</span><span>Plotly</span><span>Streamlit</span></div></div>
@@ -657,10 +651,10 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 
   <section class="chapter" id="contact" data-name="Destination">
     <div class="inner">
-      <div class="sign reveal"><span class="exit">Destination</span><span class="to">Let's talk</span><span class="cn">终点</span></div>
+      <div class="sign reveal"><span class="exit">Destination</span><span class="to">Let's talk</span><span class="cn">Điểm đến</span></div>
       <div class="panel stack reveal">
         <h2>You've arrived.</h2>
-        <p>Looking for a co-op student for January to August 2027, or just want to talk cars, markets or math? Reach out.</p>
+        <p>Want to talk cars, markets, math or what I'm building next? Reach out.</p>
         <div class="contact-row">
           <span class="email" id="email">g2truong@uwaterloo.ca</span>
           <button class="btn ghost copy" id="copyBtn" type="button">Copy email</button>
@@ -682,15 +676,10 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   <div class="ghud" aria-live="polite">
     <div><span>Distance</span><b id="gDist">0.00 km</b></div>
     <div><span>Near misses</span><b id="gNear">0</b></div>
-    <div><span>Best</span><b id="gBest">0.00 km</b></div>
+    <div><span>Bumps</span><b id="gBest">0</b></div>
     <button class="btn ghost" type="button" id="gExit">Exit</button>
   </div>
-  <p class="ghelp" id="gHelp"><span class="kb">Left and right arrows (or A and D) to steer. Up to go faster, down to brake. Esc to stop.</span><span class="tc">Hold the left or right side of the screen to steer.</span></p>
-  <div class="gover" id="gOver" hidden>
-    <h2 id="gOverTitle">Crashed.</h2>
-    <p id="gOverText"></p>
-    <div class="links"><button class="btn" type="button" id="gAgain">Drive again</button><button class="btn ghost" type="button" id="gBack">Back to the site</button></div>
-  </div>
+  <p class="ghelp" id="gHelp"><span class="kb">Left and right arrows (or A and D) to switch lanes. Up to go faster, down to brake. Drive as long as you like. Esc to stop.</span><span class="tc">Hold the left or right side of the screen to switch lanes. Drive as long as you like.</span></p>
 </div>
 
 <script>
@@ -881,9 +870,10 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   const cv = document.getElementById('scene'), g = cv.getContext('2d');
   let W, H, DPR, horizon, F, phone, skyCv, skyTowers = [];
   const NEONS = ['#ff4a3d', '#ff7a45', '#4fd1c5', '#f2efe6', '#ff5c9a', '#86d96b', '#ffc24a']; // real tube colours
-  const CN = ['数据', '霓虹', '未来', '速度', '拉面', '夜市', '电子', '酒店', '数学', '汽车', '股票', '音乐', '代码', '梦想', '极速', '茶'];
-  const EN = ['DATA', '24H', 'RAMEN', 'NEON', 'OPEN', 'R² 0.93', 'Σ', '∫ dx', 'A+', 'HOTEL'];
-  const CJK = '"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
+  // Saigon at night: short words stack on vertical blade signs, longer ones go on boards
+  const CN = ['PHỞ', 'BIA', 'CÀ PHÊ', 'KARAOKE', 'BÚN BÒ', 'CƠM', 'TRÀ', 'CHỢ', 'NHÀ NGHỈ', 'TOÁN', 'NHẠC', 'XE', 'VÀNG', 'ĐÊM', 'SÀI GÒN', 'MỞ CỬA'];
+  const EN = ['CÀ PHÊ SỮA ĐÁ', 'BÁNH MÌ', 'CƠM TẤM', 'HỦ TIẾU', 'KHÁCH SẠN', 'CHỢ ĐÊM', 'TIỆM VÀNG', 'CHỨNG KHOÁN', 'MỞ CỬA 24H', 'R² 0.93', 'Σ', '∫ dx'];
+  const CJK = '"Barlow Condensed", "Arial Narrow", sans-serif'; // sign lettering, has Vietnamese diacritics
   const pick = a => a[(Math.random() * a.length) | 0];
   const rnd = (a, b) => a + Math.random() * (b - a);
   const hexA = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
@@ -928,7 +918,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
         }
         // neon edge strips
         if (!layer && Math.random() < .06) { s.fillStyle = hexA(pick(NEONS), .7); s.fillRect(x + w * .2, SH - h - 6, w * .6, 3); }
-        if (!layer && h > H * .3) skyTowers.push({ x: x + w / 2, top: SH - h, w, color: pick(NEONS), word: pick(CN) });
+        if (!layer && h > H * .3) skyTowers.push({ x: x + w / 2, top: SH - h, w, color: pick(NEONS), word: pick(CN.filter(w => w.length <= 4)) });
         x += w + rnd(0, layer ? 4 : 10);
       }
     }
@@ -986,16 +976,14 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   const gearEls = [...document.querySelectorAll('.gears span')];
   /* ---------- drive-it-yourself game ---------- */
   const gameEl = document.getElementById('game'), gDist = document.getElementById('gDist'), gNear = document.getElementById('gNear'), gBest = document.getElementById('gBest');
-  const gOver = document.getElementById('gOver'), gHelp = document.getElementById('gHelp');
-  try { game.best = parseFloat(localStorage.getItem('g2-best')) || 0; } catch (e) {}
+  const gHelp = document.getElementById('gHelp');
   let helpTimer, gameReturnY = 0;
   function startGame() {
     if (!game.on) gameReturnY = scrollY;
-    Object.assign(game, { on: true, over: false, t: 0, dist: 0, near: 0, steer: 0, x: 1.6, flash: 0, keys: {}, touch: 0 });
+    Object.assign(game, { on: true, over: false, t: 0, dist: 0, near: 0, bumps: 0, steer: 0, x: 1.6, flash: 0, keys: {}, touch: 0 });
     CAMX = 1.6; speed = 30; boost = 0;
     cars.length = 0; for (let i = 0; i < 6; i++) spawnCar(true);
-    document.documentElement.classList.add('driving'); gameEl.hidden = false; gOver.hidden = true;
-    gBest.textContent = game.best.toFixed(2) + ' km';
+    document.documentElement.classList.add('driving'); gameEl.hidden = false; gBest.textContent = '0';
     gHelp.classList.remove('gone'); clearTimeout(helpTimer); helpTimer = setTimeout(() => gHelp.classList.add('gone'), 5000);
     document.getElementById('gExit').focus({ preventScroll: true });
   }
@@ -1004,18 +992,11 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     CAMX = 1.6; cars.length = 0; for (let i = 0; i < 8; i++) spawnCar(true);
     window.scrollTo(0, gameReturnY); document.getElementById('playGame').focus({ preventScroll: true });
   }
-  function crash() {
-    game.over = true; game.flash = 1; whoosh();
-    const km = game.dist / 900;
-    const best = km > game.best; if (best) { game.best = km; try { localStorage.setItem('g2-best', km.toFixed(3)); } catch (e) {} }
-    document.getElementById('gOverTitle').textContent = best ? "Crashed, but that's a new best." : 'Crashed.';
-    document.getElementById('gOverText').textContent = `You drove ${km.toFixed(2)} km with ${game.near} near miss${game.near === 1 ? '' : 'es'}. Best: ${game.best.toFixed(2)} km.`;
-    gBest.textContent = game.best.toFixed(2) + ' km';
-    gOver.hidden = false; document.getElementById('gAgain').focus({ preventScroll: true });
+  function bump(c) { // no game over: you bounce off, slow down and keep driving
+    game.bumps++; game.flash = .7; speed *= .3; c.z = -10; whoosh();
+    gBest.textContent = game.bumps;
   }
   document.getElementById('playGame').addEventListener('click', startGame);
-  document.getElementById('gAgain').addEventListener('click', startGame);
-  document.getElementById('gBack').addEventListener('click', endGame);
   document.getElementById('gExit').addEventListener('click', endGame);
   const keyMap = { ArrowLeft: 'l', KeyA: 'l', ArrowRight: 'r', KeyD: 'r', ArrowUp: 'u', KeyW: 'u', ArrowDown: 'd', KeyS: 'd' };
   addEventListener('keydown', e => {
@@ -1026,11 +1007,11 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   addEventListener('keyup', e => { if (keyMap[e.code]) game.keys[keyMap[e.code]] = false; });
   addEventListener('blur', () => { game.keys = {}; game.touch = 0; });
   // touch: hold the left or right half of the screen
-  addEventListener('pointerdown', e => { if (game.on && !game.over && e.pointerType !== 'mouse' && !e.target.closest('button')) game.touch = e.clientX < innerWidth / 2 ? -1 : 1; });
+  addEventListener('pointerdown', e => { if (game.on && e.pointerType !== 'mouse' && !e.target.closest('button')) game.touch = e.clientX < innerWidth / 2 ? -1 : 1; });
   addEventListener('pointerup', () => { game.touch = 0; }); addEventListener('pointercancel', () => { game.touch = 0; });
 
   function gameStep(dt) {
-    if (game.over) { speed += (0 - speed) * Math.min(1, dt * 5); game.flash = Math.max(0, game.flash - dt * 1.5); return; }
+    game.flash = Math.max(0, game.flash - dt * 1.5);
     game.t += dt;
     const k = game.keys, dir = (k.r ? 1 : 0) - (k.l ? 1 : 0) + game.touch;
     game.steer += (Math.max(-1, Math.min(1, dir)) - game.steer) * Math.min(1, dt * 7);
@@ -1045,7 +1026,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     for (const c of cars) {
       if (c.z < 2.8 && !c.done) {
         const gap = Math.abs(c.x - game.x);
-        if (gap < 1.55) { crash(); return; }
+        if (gap < 1.55) { bump(c); continue; }
         if (gap < 2.5) { game.near++; c.done = true; }
         else c.done = true;
       }
@@ -1074,6 +1055,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 
     g.save();
     // lean the camera into the turn
+    if (game.flash > 0) g.translate((Math.random() - .5) * 14 * game.flash, (Math.random() - .5) * 8 * game.flash);
     g.translate(W / 2, horizon); g.rotate(-curv * .035 - (game.on ? game.steer * .02 : 0)); g.translate(-W / 2, -horizon);
 
     // sky
@@ -1211,13 +1193,13 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     g.stroke();
 
     drawCockpit(now);
-    if (game.flash > 0) { g.fillStyle = `rgba(242,239,230,${.55 * game.flash})`; g.fillRect(0, 0, W, H); }
+    if (game.flash > 0) { g.fillStyle = `rgba(242,239,230,${.35 * game.flash})`; g.fillRect(0, 0, W, H); }
     const heroDim = game.on ? 0 : Math.max(0, 1 - scrollY / (innerHeight * .8));
     if (heroDim > 0) { g.fillStyle = `rgba(5,6,7,${.45 * heroDim})`; g.fillRect(0, 0, W, H); }
 
     const kmh = Math.max(0, Math.min(320, Math.round(speed * 4)));
     if (kmh !== shownSpeed) { shownSpeed = kmh; speedEl.textContent = kmh; dialFill.setAttribute('stroke-dasharray', `${(kmh / 320 * 100).toFixed(1)} 100`); }
-    const mode = game.on ? (game.over ? 'Crashed' : game.x < -.2 ? 'Wrong side' : 'Manual') : kmh < 1 ? 'Parked' : boost > .15 ? 'Boost' : kmh > 120 ? 'Sport' : 'Comfort';
+    const mode = game.on ? (game.flash > .3 ? 'Bump' : game.x < -.2 ? 'Wrong side' : 'Manual') : kmh < 1 ? 'Parked' : boost > .15 ? 'Boost' : kmh > 120 ? 'Sport' : 'Comfort';
     if (mode !== shownMode) { shownMode = mode; modeEl.textContent = mode; gearEls.forEach(e => e.classList.toggle('on', e.textContent === (mode === 'Parked' ? 'P' : 'D'))); }
     const yk = `translateX(-50%) rotate(${((game.on ? game.steer * 28 : 0) + curv * 14).toFixed(1)}deg)`;
     if (game.on) { const d = (game.dist / 900).toFixed(2) + ' km'; if (gDist.textContent !== d) gDist.textContent = d; if (gNear.textContent != game.near) gNear.textContent = game.near; }
@@ -1272,7 +1254,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
         const hue = Math.random() < .006 ? .2 : .85;
         g.fillStyle = `rgba(10,10,11,${.9 * wa0})`; g.fillRect(L, T, Wd, Hd);
         g.strokeStyle = hexA(bb.color, .8 * wa0); g.lineWidth = 1; g.strokeRect(L, T, Wd, Hd);
-        g.font = `700 ${Hd * .55}px "Michroma", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.font = `700 ${Hd * .62}px ${CJK}`; g.textAlign = 'center'; g.textBaseline = 'middle';
         g.fillStyle = hexA(bb.color, .95 * wa0 * hue); g.fillText(bb.text, L + Wd / 2, T + Hd / 2, Wd * .9);
         g.textBaseline = 'alphabetic';
       }
@@ -1373,7 +1355,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
       const b0 = P(c.x - .9, .25, c.z), b1 = P(c.x + .9, 1.05, c.z), r0 = P(c.x - .7, 1.05, c.z), r1 = P(c.x + .7, 1.5, c.z);
       g.fillRect(b0[0], b1[1], b1[0] - b0[0], b0[1] - b1[1]); g.fillRect(r0[0], r1[1], r1[0] - r0[0], r0[1] - r1[1]);
     }
-    if (!c.onc) { g.strokeStyle = `rgba(255,60,90,${.8 * a})`; g.lineWidth = Math.max(1, r * .5); g.beginPath(); g.moveTo(L[0], L[1]); g.lineTo(R[0], R[1]); g.stroke(); }
+    if (!c.onc) { g.strokeStyle = `rgba(255,60,90,${.8 * a})`; g.lineWidth = Math.min(6, Math.max(1, r * .5)); g.beginPath(); g.moveTo(L[0], L[1]); g.lineTo(R[0], R[1]); g.stroke(); }
     for (const p of [L, R]) {
       const lg = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], r * (c.onc ? 7 : 4));
       lg.addColorStop(0, `rgba(${col},${a})`); lg.addColorStop(.18, `rgba(${col},${.35 * a})`); lg.addColorStop(1, `rgba(${col},0)`);
@@ -1406,7 +1388,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
 
   addEventListener('resize', resize);
   resize();
-  if (document.fonts && document.fonts.load) document.fonts.load(`700 20px ${CJK}`, CN.join('')).catch(() => {});
+  if (document.fonts && document.fonts.load) document.fonts.load(`700 20px ${CJK}`, CN.join('') + EN.join('')).catch(() => {});
   requestAnimationFrame(frame);
 })();
 </script>
