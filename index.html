@@ -6,6 +6,13 @@
 <meta name="description" content="Gregory Truong: Math co-op student at the University of Waterloo. Projects in machine learning, data and finance.">
 <meta property="og:title" content="Gregory Truong">
 <meta property="og:description" content="Take the late-night drive through my projects.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gregorytruong.github.io/">
+<meta property="og:image" content="https://gregorytruong.github.io/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>Gregory Truong</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -116,7 +123,7 @@ a { color: var(--ambient); }
 .keys { position: absolute; right: 9%; bottom: 3%; width: clamp(320px, 33vw, 500px); height: 9%; min-height: 20px; pointer-events: auto;
   display: flex; align-items: center; justify-content: flex-end; gap: 6px; font: 500 9px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--fog); }
 .keys span { margin-left: 10px; }
-.keys button { width: 22px; height: 100%; max-height: 18px; padding: 0; border: 1px solid rgba(232,228,220,.16); border-radius: 3px; background: #0d0f12; cursor: pointer; display: grid; place-items: center; }
+.keys button { width: 24px; height: 100%; max-height: 20px; padding: 0; border: 1px solid rgba(232,228,220,.16); border-radius: 3px; background: #0d0f12; cursor: pointer; display: grid; place-items: center; }
 .keys button::after { content: ""; width: 10px; height: 3px; border-radius: 1px; background: var(--c); }
 .keys button[aria-pressed="true"] { border-color: var(--ink); }
 .yoke .lit { stroke: var(--cabin); transition: stroke .4s; }
@@ -140,7 +147,7 @@ a { color: var(--ambient); }
 .dial .track { fill: none; stroke: rgba(232,228,220,.12); stroke-width: 6; stroke-linecap: round; }
 .dial .fill { fill: none; stroke: var(--cabin); stroke-width: 6; stroke-linecap: round; transition: stroke .3s; }
 .dial .num { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
-.dial .num b { font-size: clamp(26px, 2.6vw, 38px); line-height: 1; font-weight: 600; color: var(--ink); }
+.dial .num b { font-size: clamp(22px, 2.1vw, 32px); line-height: 1; font-weight: 600; color: var(--ink); }
 .dial .num small { font-size: 9px; letter-spacing: .18em; color: var(--fog); margin-top: 4px; }
 .cockpit.boost .dial .fill { stroke: #f2efe6; }
 .yoke {
@@ -307,6 +314,17 @@ html.intro { overflow: hidden; }
 .embed-shot { display: block; width: 100%; height: auto; border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--line); }
 .embed-off { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; padding: 16px 18px; }
 .embed-off p { margin: 0; font-size: 14px; color: var(--fog); }
+.embed.live { position: relative; }
+.embed-skel { position: absolute; inset: 0; padding: 28px 24px; display: grid; align-content: start; gap: 14px; background: #0b0c0e; border-radius: 4px; }
+.embed-skel span { display: block; height: 14px; border-radius: 3px; background: #17191c; animation: skel 1.4s ease-in-out infinite; }
+.embed-skel span:nth-child(1) { width: 46%; height: 26px; } .embed-skel span:nth-child(2) { width: 30%; }
+.embed-skel span:nth-child(3) { width: 100%; height: 40px; } .embed-skel span:nth-child(4) { width: 100%; height: 120px; }
+.embed-skel p { margin: 6px 0 0; font-size: 13px; color: var(--fog); }
+@keyframes skel { 50% { opacity: .45; } }
+.calm .embed-skel span { animation: none; }
+@media (prefers-reduced-motion: reduce) { .embed-skel span { animation: none; } }
+.embed iframe { opacity: 0; transition: opacity .4s; }
+.embed iframe.ready { opacity: 1; }
 .embed iframe { width: 100%; height: min(640px, 70vh); border: 0; display: block; border-radius: 4px; background: #0e1117; }
 .wheel { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; padding: 14px 0 2px; border-top: 1px solid var(--line); }
 .wheel p { margin: 0; color: var(--fog); font-size: 14px; max-width: 46ch; }
@@ -791,7 +809,11 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   document.getElementById('embedBtn').addEventListener('click', () => {
     const f = document.createElement('iframe');
     f.src = 'https://stock-report-card.streamlit.app/?embed=true'; f.title = 'Stock Report Card, live app'; f.loading = 'lazy';
-    document.getElementById('embed').replaceChildren(f); f.focus();
+    const sk = document.createElement('div'); sk.className = 'embed-skel'; sk.setAttribute('role', 'status');
+    sk.innerHTML = '<span></span><span></span><span></span><span></span><p></p>';
+    requestAnimationFrame(() => { sk.querySelector('p').textContent = 'Waking up the app. This can take up to 30 seconds.'; }); // set after insert so screen readers announce it
+    f.addEventListener('load', () => { f.classList.add('ready'); setTimeout(() => sk.remove(), 400); });
+    const box = document.getElementById('embed'); box.classList.add('live'); box.replaceChildren(sk, f); f.focus({ preventScroll: true }); box.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
   });
 
   /* ---------- math view toggle ---------- */
@@ -822,7 +844,8 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     if (compact.matches) { // phone: the dock does quick actions
       if (app === 'music') setSound(!soundOn);
       else if (app === 'resume') { const a = document.createElement('a'); a.href = 'resume.pdf'; a.target = '_blank'; a.rel = 'noopener'; a.click(); }
-      else jump({ map: 'start', projects: 'cars', contact: 'contact' }[app]);
+      else if (app === 'map') jump((chapters[curIdx + 1] || chapters[0]).id); // next stop on the route
+      else jump({ projects: 'cars', contact: 'contact' }[app]);
       return;
     }
     if (mathView) mathOff();
