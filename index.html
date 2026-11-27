@@ -196,7 +196,7 @@ main { position: relative; z-index: 2; }
 }
 .js .reveal { transform: translateY(18px); transition: transform .8s cubic-bezier(.2,.7,.2,1); }
 .js .reveal.in { opacity: 1; transform: none; }
-.right .panel, .right .sign, .right .gauges { justify-self: end; }
+.right .panel, .right .sign, .right .gauges, .right .offclock { justify-self: end; }
 
 /* holographic exit sign */
 .sign {
@@ -267,6 +267,9 @@ p { margin: 0; max-width: 62ch; color: #c9c5bd; }
 .chips { display: block; color: #c9c5bd; font-size: 15px; }
 .chips span + span::before { content: ", "; }
 .kit { display: grid; gap: 14px; }
+.why { color: var(--ink); }
+.why b { font-weight: 600; }
+.offclock { margin: 0; font: 500 13px/1.4 var(--f-mono); letter-spacing: .06em; color: var(--fog); }
 .kit .eyebrow { color: var(--fog); margin-bottom: 8px; display: block; }
 
 /* destination */
@@ -487,6 +490,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
         <div class="gauge"><span class="eyebrow">Markets</span><h3>The puzzle</h3><p>Money and stocks are just data with consequences. So I built a stock grader.</p></div>
         <div class="gauge"><span class="eyebrow">Music</span><h3>The soundtrack</h3><p>Always on while I code. Turn the sound on up top to hear this drive's.</p></div>
       </div>
+      <p class="offclock reveal">Off the clock: sports, fashion and gaming.</p>
     </div>
   </section>
 
@@ -516,6 +520,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
         <h2>Every public stock gets a report card.</h2>
         <div class="grades" aria-label="Grade scale A to F"><span>A</span><span>B</span><span>C</span><span>D</span><span>F</span></div>
         <p>A Streamlit dashboard that grades any ticker on growth, profitability, valuation and risk by scoring 10 financial metrics against S&amp;P 500 benchmarks, then explains the grade in plain English.</p>
+        <p class="why"><b>Why I built it:</b> I wanted to open a TFSA and stop letting my money sit in a savings account and not grow. Before I put real money in, I wanted a quick way to tell a solid company from a risky one.</p>
         <div class="stats">
           <div class="stat"><b>10</b><span>metrics scored per stock</span></div>
           <div class="stat"><b>5 yrs</b><span>of daily prices for volatility, drawdown and beta</span></div>
