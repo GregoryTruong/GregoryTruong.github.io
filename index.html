@@ -191,7 +191,7 @@ a { color: var(--ambient); }
 .view .vhead { display: flex; justify-content: space-between; gap: 8px; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--fog); }
 .view .vhead b { color: var(--ambient); font-weight: 600; }
 .view h4 { margin: 0; font: 600 14px/1.2 var(--f-body); }
-.stops { display: grid; grid-auto-flow: column; grid-template-rows: repeat(5, auto); grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 8px; list-style: none; margin: 0; padding: 0; }
+.stops { display: grid; grid-auto-flow: column; grid-template-rows: repeat(4, auto); grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 8px; list-style: none; margin: 0; padding: 0; }
 .stops button { width: 100%; text-align: left; background: none; border: 0; color: var(--fog); font: 500 11px/1.3 var(--f-mono); padding: 3px 0; cursor: pointer; display: flex; gap: 6px; align-items: center; }
 .stops button i { width: 6px; height: 6px; border-radius: 50%; border: 1px solid currentColor; flex: none; }
 .stops button.on { color: var(--ambient); }
@@ -294,13 +294,8 @@ html.intro { overflow: hidden; }
 .grades span:first-child { color: #15120d; background: var(--ambient); border-color: var(--ambient); }
 .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
 
-/* side quests */
-.quests { display: grid; gap: 10px; list-style: none; padding: 0; margin: 0; }
-.quests li { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: baseline; padding: 12px 0; border-top: 1px solid var(--line); }
-.quests li:first-child { border-top: 0; padding-top: 0; }
 .pill { font: 500 10px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; padding: 5px 8px; border-radius: 3px; border: 1px solid var(--line); color: var(--fog); white-space: nowrap; }
 .pill.live { color: #8fc29b; border-color: rgba(126,178,138,.5); }
-.quests p { grid-column: 2; font-size: 14px; }
 
 /* toolkit */
 .chips { display: block; color: #c9c5bd; font-size: 15px; }
@@ -516,7 +511,7 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
       <div class="panel stack reveal">
         <h2>Hey, I'm Greg.</h2>
         <p>I study Honours Mathematics in the co-op program at the University of Waterloo. I like problems where the answer is hiding in a pile of numbers, and I like building the thing that pulls it out.</p>
-        <p>From <strong>January to August 2027</strong> I'm a Quality Assurance Analyst co-op with GovTechON at the <strong>Ontario Public Service</strong>, in the I&amp;IT Enterprise Solutions Division in Toronto. It's my first co-op: two back-to-back terms testing the software behind provincial government services.</p>
+        <p>From <strong>January to August 2027</strong> I'm a Quality Assurance Analyst co-op with GovTechON at the <strong>Ontario Public Service</strong>, in the I&amp;IT Enterprise Solutions Division in Toronto.</p>
       </div>
     </div>
   </section>
@@ -611,22 +606,9 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     </div>
   </section>
 
-  <section class="chapter" id="more" data-name="Side quests">
+  <section class="chapter" id="math" data-name="Under the hood">
     <div class="inner">
-      <div class="sign reveal"><span class="exit">Exit 5</span><span class="to">Side quests</span><span class="cn">Việc phụ</span></div>
-      <div class="panel stack reveal">
-        <h2>Things I've built along the way</h2>
-        <ul class="quests">
-          <li><span class="pill">Building</span><h3>UWVSA official website</h3><p>Building the Vietnamese Student Association's site with the exec team.</p></li>
-          <li><span class="pill">Shipped</span><h3>Gamemaster</h3><p>A challenge game for 60+ association members, plus the scheduling polls and forms behind our events.</p></li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="chapter right" id="math" data-name="Under the hood">
-    <div class="inner">
-      <div class="sign reveal"><span class="exit">Exit 6</span><span class="to">Under the hood</span><span class="cn">Toán học</span></div>
+      <div class="sign reveal"><span class="exit">Exit 5</span><span class="to">Under the hood</span><span class="cn">Toán học</span></div>
       <div class="panel stack reveal">
         <span class="eyebrow">How this site works</span>
         <h2>The math behind the drive</h2>
@@ -643,9 +625,9 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
     </div>
   </section>
 
-  <section class="chapter" id="toolkit" data-name="Toolkit">
+  <section class="chapter right" id="toolkit" data-name="Toolkit">
     <div class="inner">
-      <div class="sign reveal"><span class="exit">Exit 7</span><span class="to">Toolkit</span><span class="cn">Công cụ</span></div>
+      <div class="sign reveal"><span class="exit">Exit 6</span><span class="to">Toolkit</span><span class="cn">Công cụ</span></div>
       <div class="panel kit reveal">
         <div><span class="eyebrow">Languages</span><div class="chips"><span>Python</span><span>SQL</span><span>TypeScript</span><span>JavaScript</span><span>Java</span><span>C</span><span>C++</span><span>HTML/CSS</span></div></div>
         <div><span class="eyebrow">Frameworks &amp; libraries</span><div class="chips"><span>React</span><span>Node.js</span><span>.NET</span><span>pandas</span><span>NumPy</span><span>scikit-learn</span><span>Plotly</span><span>Streamlit</span></div></div>
@@ -684,7 +666,6 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
   <li><a href="#drives"><span>What drives me</span><i></i></a></li>
   <li><a href="#cars"><span>Car project</span><i></i></a></li>
   <li><a href="#stocks"><span>Stock project</span><i></i></a></li>
-  <li><a href="#more"><span>Side quests</span><i></i></a></li>
   <li><a href="#math"><span>Under the hood</span><i></i></a></li>
   <li><a href="#toolkit"><span>Toolkit</span><i></i></a></li>
   <li><a href="#contact"><span>Destination</span><i></i></a></li>
@@ -825,7 +806,6 @@ footer { position: relative; z-index: 2; text-align: center; padding: 0 16px 36v
       <div class="tiles">
         <div class="tile"><b>Car Depreciation Analyzer</b><span class="acts"><button class="mini" type="button" data-jump="cars">View</button><a class="mini" href="https://github.com/GregoryTruong/car-depreciation" target="_blank" rel="noopener">Code</a></span></div>
         <div class="tile"><b>Stock Report Card</b><span class="acts"><button class="mini" type="button" data-jump="stocks">View</button><a class="mini" href="https://stock-report-card.streamlit.app" target="_blank" rel="noopener">Live</a><a class="mini" href="https://github.com/GregoryTruong/stock-report-card" target="_blank" rel="noopener">Code</a></span></div>
-        <div class="tile"><b>Side quests</b><span class="acts"><button class="mini" type="button" data-jump="more">View</button></span></div>
       </div>
     </div>
     <div class="view" data-view="contact" hidden>
